@@ -1,0 +1,22 @@
+meta {
+  name: PUT Project Repository Start
+  type: http
+  seq: 11
+}
+
+put {
+  url: http://{{HOST}}:{{PORT}}/api/projects/2854f866-8a9e-448b-9435-328e01bc5810/start
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "taskfile": "Taskfile.yml",
+    "message": "First Run with pierflow"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

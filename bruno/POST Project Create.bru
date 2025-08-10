@@ -1,0 +1,23 @@
+meta {
+  name: POST Project Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://{{HOST}}:{{PORT}}/api/projects
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Mockary Website",
+    "description": "Test website",
+    "giturl": "https://www.blueskyfish.de/git/blueskyfish/mockary-website.git"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

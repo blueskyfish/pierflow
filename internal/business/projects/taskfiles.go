@@ -1,0 +1,47 @@
+package projects
+
+import (
+	"errors"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+)
+
+const (
+	TaskNameList  = "list"  // TaskNameList is used to list all tasks in the taskfile
+	TaskNameBuild = "build" // TaskNameBuild is used to build the project
+	TaskNameStart = "start" // TaskNameStart is used to start the task
+	TaskNameStop  = "stop"  // TaskNameStop is used to stop the task
+	TaskNameInfo  = "info"  // TaskNameInfo is used to get information about task
+)
+
+func (pm *ProjectManager) listTaskFiles(p *DbProject) ([]string, error) {
+	if p == nil {
+		return nil, errors.New("project is nil")
+	}
+
+	var fileList []string
+	err := filepath.Walk(path.Join(pm.basePath, p.Path), func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+
+		if (filepath.Ext(filePath) == ".yml" || filepath.Ext(filePath) == ".yaml") &&
+			strings.Contains(strings.ToLower(filepath.Base(filePath)), "taskfile") {
+			fileList = append(fileList, info.Name())
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(fileList) == 0 {
+		fileList = []string{}
+	}
+	return fileList, nil
+}

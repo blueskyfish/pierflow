@@ -1,0 +1,13 @@
+version: '3'
+
+vars:
+  TEST: Hallo
+
+tasks:
+  test:
+    desc: Runs Taskfile tests
+    cmds:
+      - echo "Running Taskfile tests"
+      - echo "{{ .TEST }}"
+    silent: true
+    summary: Test Summary

@@ -1,0 +1,25 @@
+meta {
+  name: GET Project Repository Branch List
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://{{HOST}}:{{PORT}}/api/projects/2854f866-8a9e-448b-9435-328e01bc5810/branches?refresh=true
+  body: none
+  auth: inherit
+}
+
+params:query {
+  refresh: true
+}
+
+body:json {
+  {
+    "message": "Cloning project"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,17 @@
+
+# Golang build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.a
+*.o
+*.prof
+*.cgo1.go
+out/
+
+# Project files
+var/

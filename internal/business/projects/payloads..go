@@ -1,0 +1,23 @@
+package projects
+
+type CreatePayload struct {
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description"`
+	Path        string `json:"path" validate:"required"`
+	GitUrl      string `json:"giturl" validate:"required,url"`
+}
+
+type CommandPayload struct {
+	Message string `json:"message" validate:"required"`
+}
+
+type CheckoutPayload struct {
+	Branch  string `json:"branch" validate:"required"`
+	Place   string `json:"place" validate:"required"`
+	Message string `json:"message" validate:"required"`
+}
+
+type TaskFileProjectPayload struct {
+	TaskFile string `json:"taskfile" validate:"required"`
+	Message  string `json:"message" validate:"required"`
+}

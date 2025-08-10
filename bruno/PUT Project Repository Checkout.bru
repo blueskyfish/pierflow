@@ -1,0 +1,23 @@
+meta {
+  name: PUT Project Repository Checkout
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://{{HOST}}:{{PORT}}/api/projects/2854f866-8a9e-448b-9435-328e01bc5810/checkout
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "branch": "release/v1.0.0-alpha.1",
+    "place": "local",
+    "message": "Checkout to release branch"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
