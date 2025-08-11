@@ -1,10 +1,14 @@
 package serve
 
 import (
+	"embed"
 	"pierflow/internal/api"
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed web
+var web embed.FS
 
 var CommandServe = &cobra.Command{
 	Use:     "serve",
@@ -24,6 +28,7 @@ var CommandServe = &cobra.Command{
 			DbPath:   dbPath,
 			Log:      log,
 			BasePath: basePath,
+			Web:      &web,
 		}
 
 		return api.StartApiServer(&options)

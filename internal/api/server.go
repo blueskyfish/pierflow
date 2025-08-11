@@ -60,6 +60,10 @@ func StartApiServer(config *ServerConfig) error {
 		middleware.Recover(),
 	)
 
+	// Static file serving
+	if config.Web != nil {
+		server.StaticFS("/", echo.MustSubFS(config.Web, "web"))
+	}
 	// Routing
 	group := server.Group("/api")
 	err = registerEndpoints(pm, sm, group)
