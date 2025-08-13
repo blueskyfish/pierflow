@@ -1,5 +1,5 @@
 
-![Pierflow Logo](./login.png)
+![Pierflow Logo](logo.png)
 
 > Microsoft Designer AI with *A cat on a pier with a flag in the hand.
 > The sky is blue and the sun is shining. Some clouds in the skay.
