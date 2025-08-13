@@ -1,4 +1,10 @@
 
+![Pierflow Logo](./login.png)
+
+> Microsoft Designer AI with *A cat on a pier with a flag in the hand.
+> The sky is blue and the sun is shining. Some clouds in the skay.
+> In comic style. The flag show a docker container.*
+
 # Pierflow (Cat on Pier)
 
 > :construction: Project is under construction. The working title is **Cat on Pier**.
