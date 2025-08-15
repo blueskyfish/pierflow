@@ -1,8 +1,8 @@
 import { CardImage, HeadLine, Paragraph } from '@blueskyfish/pierflow/components';
 import type { ProjectDto } from '@blueskyfish/pierflow/stores';
+import { RouteBuilder } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { RouteBuilder } from '../../utils/routing/route-names.ts';
 
 export interface ProjectCardProps {
   project: ProjectDto;

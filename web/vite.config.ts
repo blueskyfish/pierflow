@@ -26,7 +26,6 @@ export default defineConfig({
       '@blueskyfish/pierflow/stores': resolve('src/stores'),
       '@blueskyfish/pierflow/utils': resolve('./src/utils'),
       // '@blueskyfish/pierflow/hooks': './src/hooks',
-      // '@blueskyfish/pierflow/store': './src/store',
     },
   },
   plugins: [react(), tailwindcss()],

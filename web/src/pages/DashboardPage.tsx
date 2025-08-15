@@ -1,7 +1,6 @@
-import { useAppDispatch } from '@blueskyfish/pierflow/stores';
+import { updatePageKey, useAppDispatch } from '@blueskyfish/pierflow/stores';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { updatePageKey } from '../stores/layout';
 
 export const DashboardPage: React.FC = () => {
   // Update pageKey to 'dashboard' when this component is mounted
