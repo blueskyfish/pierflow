@@ -6,7 +6,7 @@
       <synchronize>true</synchronize>
       <remarks>Pierflow</remarks>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/pierflow.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/var/projects/pierflow.db</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
       </jdbc-additional-properties>
