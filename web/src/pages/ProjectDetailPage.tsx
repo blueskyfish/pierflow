@@ -1,9 +1,13 @@
-import { selectSelectProject, useAppDispatch, useAppSelector } from '@blueskyfish/pierflow/stores';
+import {
+  selectSelectProject,
+  updatePageKey,
+  updateSelectedId,
+  useAppDispatch,
+  useAppSelector,
+} from '@blueskyfish/pierflow/stores';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
-import { updatePageKey } from '../stores/layout';
-import { updateSelectedId } from '../stores/projects';
 
 export const ProjectDetailPage: React.FC = () => {
   const projectId = useParams().projectId ?? '??';

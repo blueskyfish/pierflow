@@ -1,5 +1,5 @@
+import { RouteBuilder, RoutePath } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
-import { RouteBuilder, RoutePath } from '../../utils/routing/route-names.ts';
 import { SidebarItem } from './SidebarItem.tsx';
 
 export interface SideMenuItem {

@@ -1,8 +1,7 @@
-import { DashboardPage, ProjectListPage, RootPage } from '@blueskyfish/pierflow/pages';
+import { DashboardPage, ProjectDetailPage, ProjectListPage, RootPage } from '@blueskyfish/pierflow/pages';
+import { RoutePath } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
 import { Route, Routes } from 'react-router';
-import { ProjectDetailPage } from '../pages/ProjectDetailPage.tsx';
-import { RoutePath } from '../utils/routing/route-names.ts';
 
 export const App: React.FC = () => {
   return (

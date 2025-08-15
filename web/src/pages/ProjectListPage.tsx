@@ -1,9 +1,13 @@
 import { HeadLine, Paragraph } from '@blueskyfish/pierflow/components';
-import { selectProjectList, useAppDispatch, useAppSelector } from '@blueskyfish/pierflow/stores';
+import {
+  selectProjectList,
+  updatePageKey,
+  updateSelectedId,
+  useAppDispatch,
+  useAppSelector
+} from '@blueskyfish/pierflow/stores';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { updatePageKey } from '../stores/layout';
-import { updateSelectedId } from '../stores/projects';
 import { ProjectCard } from './project';
 
 export const ProjectListPage: React.FC = () => {
