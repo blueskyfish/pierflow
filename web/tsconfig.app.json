@@ -19,7 +19,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
@@ -31,6 +31,12 @@
       ],
       "@blueskyfish/pierflow/pages": [
         "./src/pages/index.ts"
+      ],
+      "@blueskyfish/pierflow/stores": [
+        "./src/stores/index.ts"
+      ],
+      "@blueskyfish/pierflow/utils": [
+        "./src/utils/index.ts"
       ],
     }
   },

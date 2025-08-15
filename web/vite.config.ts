@@ -9,13 +9,23 @@ export default defineConfig({
     outDir: '../cmd/serve/web',
     emptyOutDir: true,
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:58080',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@blueskyfish/pierflow/app': resolve('src/app'),
       '@blueskyfish/pierflow/components': resolve('src/components'),
       '@blueskyfish/pierflow/pages': resolve('src/pages'),
+      '@blueskyfish/pierflow/stores': resolve('src/stores'),
+      '@blueskyfish/pierflow/utils': resolve('./src/utils'),
       // '@blueskyfish/pierflow/hooks': './src/hooks',
-      // '@blueskyfish/pierflow/utils': './src/utils',
       // '@blueskyfish/pierflow/store': './src/store',
     },
   },
