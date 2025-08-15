@@ -1,8 +1,8 @@
 
 ![Pierflow Logo](logo.png)
 
-> Microsoft Designer AI with *A cat on a pier with a flag in the hand.
-> The sky is blue and the sun is shining. Some clouds in the skay.
+> Microsoft Designer AI with *A cat on the pier with a flag in the hand.
+> The sky is blue and the sun is shining. Some clouds in the sky.
 > In comic style. The flag show a docker container.*
 
 # Pierflow (Cat on Pier)

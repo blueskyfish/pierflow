@@ -1,11 +1,27 @@
 import { App } from '@blueskyfish/pierflow/app';
+import { StoreProvider } from '@blueskyfish/pierflow/stores';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { HashRouter as Router } from 'react-router';
 
 import './main.css';
 
-createRoot(document.getElementById('root')!).render(
+const strictMode = false;
+
+const renderNode = strictMode ? (
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <StoreProvider>
+      <Router>
+        <App />
+      </Router>
+    </StoreProvider>
+  </StrictMode>
+) : (
+  <StoreProvider>
+    <Router>
+      <App />
+    </Router>
+  </StoreProvider>
 );
+
+createRoot(document.getElementById('root')!).render(renderNode);
