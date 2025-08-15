@@ -12,13 +12,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <div className={'card w-1/5 bg-base-100 shadow-md'}>
       <figure>
-        <CardImage fillColor={'oklch(92% 0 0)'} height={65}>
-          <span className={'mdi mdi-factory mdi-48px text-base'}></span>
+        <CardImage fillColor={'oklch(92% 0 0)'} height={84}>
+          <span className={'mdi mdi-factory mdi-48px text-base-content/80'}></span>
         </CardImage>
       </figure>
       <div className={'card-body p-3'}>
         <HeadLine title={project.name} as={'h4'} className={'card-title'} />
-        <Paragraph size={'sm'} className={'text-base-content/70'}>
+        <Paragraph size={'sm'} className={'text-base-content/70 line-clamp-2'}>
           {project.description}
         </Paragraph>
         <div className={'card-actions justify-end'}>

@@ -20,8 +20,12 @@ export const ProjectListPage: React.FC = () => {
 
   return (
     <div className={'flex flex-col align-items-stretch height-100 overflow-auto p-3'}>
-      <HeadLine as={'h2'} title={'Project Overview'} icon={'mdi mdi-list-box-outline'} />
-      {isEmpty && <Paragraph>Leider kein Projek definiert.</Paragraph>}
+      <HeadLine as={'h2'} title={'Project Overview'} icon={'mdi mdi-list-box-outline mb-4'} />
+      {isEmpty && (
+        <div className={'alert alert-warning w-full'}>
+          <Paragraph>Leider kein Projekt definiert.</Paragraph>
+        </div>
+      )}
       {!isEmpty && (
         <div className={'flex flex-row flex-wrap gap-4'}>
           {list.map((project) => (
