@@ -36,7 +36,7 @@ export const SidebarMenu: React.FC<SidebarMenuProps> = ({ selected, menu }) => {
           key={item.id}
           menuKey={item.id}
           label={item.name}
-          link={RouteBuilder.buildProjectDetailPath(item.id)}
+          link={RouteBuilder.buildProjectHomePath(item.id)}
           icon={'mdi mdi-factory'}
           selected={item.id === selected}
           disabled={false}

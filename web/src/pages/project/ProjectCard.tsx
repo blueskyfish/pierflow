@@ -22,7 +22,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           {project.description}
         </Paragraph>
         <div className={'card-actions justify-end'}>
-          <Link to={RouteBuilder.buildProjectDetailPath(project.id)} className={'btn btn-xs btn-neutral'}>
+          <Link to={RouteBuilder.buildProjectHomePath(project.id)} className={'btn btn-xs btn-neutral'}>
             Projekt Details
           </Link>
         </div>
