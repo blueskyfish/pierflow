@@ -4,7 +4,7 @@ import { BrandName } from './BrandName.tsx';
 
 export const BrandHead: React.FC = () => {
   return (
-    <div className={'flex flex-row align-items-center px-2 mb-2'}>
+    <div className={'flex flex-row align-items-center px-2 mb-3'}>
       <BrandLogo />
       <BrandName />
     </div>

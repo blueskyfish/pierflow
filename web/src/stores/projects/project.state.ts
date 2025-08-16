@@ -31,7 +31,7 @@ export const projectSlice = createSlice({
       });
       return {
         ...state,
-        selectedId: null,
+        selectedId: state.selectedId ?? null,
         map,
       };
     },
