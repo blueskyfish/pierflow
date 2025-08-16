@@ -3,6 +3,9 @@ package projects
 type ProjectCommand string
 
 const (
+	// CommandCreateProject create a new project
+	// It is the first command to be executed when creating a project.
+	// It is always allowed to be executed, regardless of the current status of the project.
 	CommandCreateProject      ProjectCommand = "create-project"
 	CommandCloneRepository    ProjectCommand = "clone-repository"
 	CommandCheckoutRepository ProjectCommand = "checkout-repository"

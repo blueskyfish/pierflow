@@ -18,6 +18,7 @@ func toProjectResponse(p *DbProject) *ProjectResponse {
 		Creation:    time.Unix(p.Creation, 0).Format(time.RFC3339),
 		Modified:    time.Unix(p.Modified, 0).Format(time.RFC3339),
 		Status:      p.Status.String(),
+		CommandMap:  verifier.CommandMap(p.Status),
 	}
 }
 

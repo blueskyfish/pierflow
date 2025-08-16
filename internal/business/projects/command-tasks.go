@@ -63,7 +63,7 @@ func (pm *ProjectManager) prepareProjectTask(ctx echo.Context, command ProjectCo
 	}
 
 	if !force {
-		err := VerifyCommandToStatus(command, project.Status)
+		err := verifier.VerifyStatus(command, project.Status)
 		if err != nil {
 			return nil, nil, false, toErrorF(http.StatusBadRequest, "Invalid project status '%s' to run project", project.Status)
 		}

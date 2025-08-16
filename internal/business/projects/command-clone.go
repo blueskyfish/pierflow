@@ -22,7 +22,7 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 	}
 	logger.Infof("Cloning project '%s' with id '%s'", project.Name, message.Message)
 
-	if err := VerifyCommandToStatus(CommandCloneRepository, project.Status); err != nil {
+	if err := verifier.VerifyStatus(CommandCloneRepository, project.Status); err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 

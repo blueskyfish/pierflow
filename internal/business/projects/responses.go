@@ -17,16 +17,17 @@ func toErrorResponseF(format string, args ...any) *ErrorResponse {
 }
 
 type ProjectResponse struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Path        string `json:"path"`
-	GitUrl      string `json:"gitUrl"`
-	Branch      string `json:"branch"`
-	User        string `json:"user"`
-	Creation    string `json:"creation"`
-	Modified    string `json:"modified"`
-	Status      string `json:"status"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Path        string     `json:"path"`
+	GitUrl      string     `json:"gitUrl"`
+	Branch      string     `json:"branch"`
+	User        string     `json:"user"`
+	Creation    string     `json:"creation"`
+	Modified    string     `json:"modified"`
+	Status      string     `json:"status"`
+	CommandMap  CommandMap `json:"commandMap,omitempty"`
 }
 
 type ProjectMessageListResponse struct {
