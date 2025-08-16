@@ -18,7 +18,7 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 		return ctx.JSON(404, toErrorResponse("Not found project"))
 	}
 
-	if err := VerifyCommandToStatus(CommandCreateProject, project.Status); err != nil {
+	if err := verifier.VerifyStatus(CommandCreateProject, project.Status); err != nil {
 		return ctx.JSON(400, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
@@ -51,7 +51,7 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	if project == nil {
 		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
 	}
-	if err := VerifyCommandToStatus(CommandCheckoutRepository, project.Status); err != nil {
+	if err := verifier.VerifyStatus(CommandCheckoutRepository, project.Status); err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)

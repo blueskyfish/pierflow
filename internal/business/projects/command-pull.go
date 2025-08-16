@@ -15,7 +15,7 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("DbProject not found"))
 	}
 
-	if err := VerifyCommandToStatus(CommandPullRepository, project.Status); err != nil {
+	if err := verifier.VerifyStatus(CommandPullRepository, project.Status); err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
