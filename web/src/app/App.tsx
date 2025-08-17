@@ -10,7 +10,7 @@ import {
   ProjectPullPage,
   ProjectStartPage,
   ProjectStopPage,
-  RootPage
+  RootPage,
 } from '@blueskyfish/pierflow/pages';
 import { ProjectPath, RoutePath } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
