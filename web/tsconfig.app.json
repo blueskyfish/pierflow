@@ -38,6 +38,9 @@
       "@blueskyfish/pierflow/utils": [
         "./src/utils/index.ts"
       ],
+      "@blueskyfish/pierflow/icons": [
+        "./src/icons/index.ts"
+      ],
     }
   },
   "include": ["src"]

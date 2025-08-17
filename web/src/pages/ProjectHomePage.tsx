@@ -28,7 +28,7 @@ export const ProjectHomePage: React.FC = () => {
 
   if (!project) {
     return (
-      <div className={'flex flex-col align-items-stretch height-100 overflow-auto px-2 py-3'}>
+      <div className={'flex flex-col align-items-stretch height-100 overflow-auto p-3'}>
         <HeadLine title={'Fehler'} icon={'mdi mdi-alert'} className={'mb-4'} />
         <div className={'alert alert-error w-full'}>
           <Paragraph size={'md'}>Projekt ist nicht vorhanden.</Paragraph>
@@ -38,7 +38,7 @@ export const ProjectHomePage: React.FC = () => {
   }
 
   return (
-    <div className={'flex flex-col align-items-stretch height-100 overflow-auto px-2 py-3 relative'}>
+    <div className={'flex flex-col align-items-stretch height-100 overflow-auto p-3 relative'}>
       <div className={'flex flex-col items-stretch flex-grow-1 overflow-auto mb-13'}>
         <Outlet />
       </div>
