@@ -43,6 +43,10 @@ func (s ProjectStatus) String() string {
 		return "checking-out"
 	case StatusCheckedOut:
 		return "checked-out"
+	case StatusPulling:
+		return "pulling"
+	case StatusPulled:
+		return "pulled"
 	case StatusBuilding:
 		return "building"
 	case StatusBuilt:
