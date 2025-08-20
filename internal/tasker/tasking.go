@@ -4,12 +4,9 @@ import (
 	"context"
 	"path"
 	"pierflow/internal/logger"
-	"time"
 
 	"github.com/go-task/task/v3"
 )
-
-const RunTaskTimeout = 5 * time.Minute // RunTaskTimeout is the timeout for running a task (5 Minutes)
 
 func (tc *taskClient) RunTask(ctx context.Context, projectPath, taskFile, taskName string, messageChan chan string) {
 	logger.Debugf("Taskfile: %s", taskFile)
@@ -64,10 +61,9 @@ func (tc *taskClient) runTask(ctx context.Context, projectPath, taskFile, taskNa
 		task.WithDir(path.Join(tc.basePath, projectPath)),
 		task.WithForce(true),
 		task.WithVersionCheck(true),
-		task.WithColor(false),            // Disable color output for better readability in logs
-		task.WithStdout(outWriter),       // Use the provided writer for stdout
-		task.WithStderr(outWriter),       // Use the provided writer for stderr
-		task.WithTimeout(RunTaskTimeout), // Set a timeout for the task execution
+		task.WithColor(false),      // Disable color output for better readability in logs
+		task.WithStdout(outWriter), // Use the provided writer for stdout
+		task.WithStderr(outWriter), // Use the provided writer for stderr
 	)
 
 	if err := executor.Setup(); err != nil {
