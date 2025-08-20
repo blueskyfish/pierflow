@@ -11,12 +11,12 @@ import (
 func (pm *ProjectManager) GetTaskFileList(ctx echo.Context) error {
 	projectId := ctx.Param("id")
 
-	var project DbProject
-	if err := pm.db.Find(&project, "id = ?", projectId).Error; err != nil {
+	project := pm.findProjectById(projectId)
+	if project == nil {
 		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
 	}
 
-	taskFiles, err := pm.listTaskFiles(&project)
+	taskFiles, err := pm.listTaskFiles(project)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to list task files for project '%s' => %s", project.Name, err.Error()))
 	}
@@ -28,8 +28,8 @@ func (pm *ProjectManager) GetTaskNameListByTaskFile(ctx echo.Context) error {
 	projectId := ctx.Param("id")
 	taskFile := ctx.Param("taskFile")
 
-	var project DbProject
-	if err := pm.db.Find(&project, "id = ?", projectId).Error; err != nil {
+	project := pm.findProjectById(projectId)
+	if project == nil {
 		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
 	}
 

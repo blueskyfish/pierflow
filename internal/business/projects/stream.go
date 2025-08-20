@@ -53,8 +53,8 @@ func receiveMessageAndSent(ctx echo.Context, messageChan chan string, finishFunc
 	}
 
 	for {
-		message, ok := <-messageChan
-		if !ok {
+		message, hasMessage := <-messageChan
+		if !hasMessage {
 			// Channel closed, finish the response
 			if err := finishFunc(); err != nil {
 				ctx.Logger().Errorf("Failed to finish response: %s", err.Error())
