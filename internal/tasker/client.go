@@ -1,9 +1,11 @@
 package tasker
 
-import "context"
+import (
+	"context"
+)
 
 type TaskClient interface {
-	RunTask(ctx context.Context, projectPath, taskFile, taskName string) (string, error)
+	RunTask(ctx context.Context, projectPath, taskFile, taskName string, messageChan chan string)
 	TaskList(projectPath, taskFile string) ([]*TaskItem, error)
 }
 

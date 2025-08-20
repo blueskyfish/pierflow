@@ -1,7 +1,6 @@
 package projects
 
 import (
-	"net/http"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -20,20 +19,13 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 	if force {
 		logger.Infof("Build project '%s' with force", project.Name)
 	}
+	// Create a buffered channel for messages to avoid blocking the task execution
+	messageChan := make(chan string, 20)
 
 	// Build the project
-	message, err := pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameBuild)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to build project '%s' => %s", project.Name, err.Error()))
-	}
+	pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameBuild, messageChan)
 
-	// Update DbProject Status
-	err = pm.updateProjectStatus(project, StatusBuilt)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to update project status 'build': %s", err.Error()))
-	}
-	logger.Infof("Built project '%s' with task file '%s'", project.Name, payload.TaskFile)
-
-	// Response
-	return ctx.JSON(http.StatusOK, toProjectTaskMessageListResponse(project, payload.TaskFile, TaskNameBuild, message))
+	return receiveMessageAndSent(ctx, messageChan, func() error {
+		return pm.updateProjectStatus(project, StatusBuilt)
+	})
 }

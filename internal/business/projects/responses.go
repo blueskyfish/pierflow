@@ -2,6 +2,7 @@ package projects
 
 import (
 	"fmt"
+	"time"
 )
 
 type ErrorResponse struct {
@@ -57,4 +58,10 @@ type BranchInfo struct {
 type BranchListResponse struct {
 	Branches []*BranchInfo `json:"branches"`
 	Messages []string      `json:"messages"`
+}
+
+type Message struct {
+	Status  string    `json:"status"` // Status code, if applicable
+	Message string    `json:"message"`
+	Time    time.Time `json:"time"`
 }

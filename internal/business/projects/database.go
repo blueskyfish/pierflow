@@ -3,6 +3,7 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/logger"
+	"pierflow/internal/tasker"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -71,4 +72,20 @@ func (pm *ProjectManager) updateProjectStatus(p *DbProject, status ProjectStatus
 		p.Modified = time.Now().Unix()
 		return tx.Save(p).Error
 	})
+}
+
+// deprecated: Use updateProjectStatus instead
+func (pm *ProjectManager) finishProjectAndUpdateStatus(state int, p *DbProject, taskName string, status ProjectStatus) error {
+	if state != tasker.MessageOK {
+		logger.Warnf("Task '%s' for project '%s' finished with error", taskName, p.Name)
+		return nil
+	}
+	// Update DbProject Status
+	err := pm.updateProjectStatus(p, status)
+	if err != nil {
+		return err
+	}
+	logger.Infof("Updated project '%s' status to 'built'", p.Name)
+	return nil
+
 }
