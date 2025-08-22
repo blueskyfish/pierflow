@@ -60,6 +60,7 @@ func receiveMessageAndSent(ctx echo.Context, messageChan chan string, finishFunc
 				ctx.Logger().Errorf("Failed to finish response: %s", err.Error())
 				return err
 			}
+			_, _ = res.Write([]byte("\n\n"))
 			res.WriteHeader(http.StatusOK)
 			return nil
 		}
