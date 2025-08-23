@@ -40,5 +40,9 @@ func registerEndpoints(pm *projects.ProjectManager, sm *business.SystemManager, 
 	// Managed System
 	group.GET("/system", sm.GetSystemInfo)
 
+	// User Management
+	group.GET("/users/:id", pm.UserConnect)
+	group.GET("/users/:id/ping", pm.SendPing)
+
 	return nil
 }

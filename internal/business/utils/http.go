@@ -13,3 +13,7 @@ func QueryBool(ctx echo.Context, key string, defaultValue bool) bool {
 	}
 	return strings.ToLower(value) == "true"
 }
+
+func HeaderUser(ctx echo.Context) string {
+	return ctx.Request().Header.Get("x-pierflow-user")
+}

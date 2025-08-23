@@ -1,6 +1,8 @@
 package projects
 
 import (
+	"net/http"
+	"pierflow/internal/business/utils"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -22,8 +24,20 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 	// Stop the project
 	pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameStop, messageChan)
 
-	// Response
-	return receiveMessageAndSent(ctx, messageChan, func() error {
-		return pm.updateProjectStatus(project, StatusStopped)
-	})
+	// Receive messages and send them to the client over server-sent events (SSE)
+	options := buildReceiveOptions(
+		utils.HeaderUser(ctx),
+		project.ID,
+		TaskNameBuild,
+		messageChan,
+		func() error {
+			return pm.updateProjectStatus(project, StatusStopped)
+		},
+	)
+
+	err := receiveMessageAndSent(options)
+	if err != nil {
+		return err
+	}
+	return ctx.String(http.StatusNoContent, "")
 }

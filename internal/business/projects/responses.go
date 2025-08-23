@@ -61,7 +61,9 @@ type BranchListResponse struct {
 }
 
 type Message struct {
-	Status  string    `json:"status"` // Status code, if applicable
-	Message string    `json:"message"`
-	Time    time.Time `json:"time"`
+	Action    string    `json:"action"`
+	ProjectId string    `json:"id"`     // Project ID
+	Status    string    `json:"status"` // Status code, if applicable
+	Message   string    `json:"message"`
+	Time      time.Time `json:"time"`
 }
