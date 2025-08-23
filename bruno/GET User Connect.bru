@@ -1,0 +1,15 @@
+meta {
+  name: GET User Connect
+  type: http
+  seq: 14
+}
+
+get {
+  url: http://{{HOST}}:{{PORT}}/api/users/4711
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

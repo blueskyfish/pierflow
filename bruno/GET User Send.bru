@@ -1,0 +1,15 @@
+meta {
+  name: GET User Send
+  type: http
+  seq: 15
+}
+
+get {
+  url: http://{{HOST}}:{{PORT}}/api/users/4711/ping
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

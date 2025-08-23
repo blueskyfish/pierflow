@@ -1,24 +1,22 @@
 package projects
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
+	"pierflow/internal/business/utils"
 	"pierflow/internal/logger"
 	"strings"
 	"time"
-
-	"github.com/labstack/echo/v4"
 )
 
-func parseMessage(message string) []Message {
+func parseMessage(projectId, action, message string) []Message {
 	parts := strings.SplitN(message, "|", 2)
 	if len(parts) < 2 {
 		return []Message{{
-			Status:  "warning",
-			Message: fmt.Sprintf("Invalid message format (%s)", message),
-			Time:    time.Now(),
+			Action:    action,
+			ProjectId: projectId,
+			Status:    "warning",
+			Message:   fmt.Sprintf("Invalid message format (%s)", message),
+			Time:      time.Now(),
 		}}
 	}
 
@@ -30,48 +28,66 @@ func parseMessage(message string) []Message {
 		if m == "" {
 			continue // Skip empty messages
 		}
-		messageList = append(messageList, Message{Status: parts[0], Message: m, Time: time.Now()})
+		messageList = append(messageList, Message{
+			Action:    action,
+			ProjectId: projectId,
+			Status:    parts[0],
+			Message:   m,
+			Time:      time.Now(),
+		})
 	}
 
 	return messageList
 }
 
-// receiveMessageAndSent reads messages from the message channel and sends them to the client as a JSON stream.
-func receiveMessageAndSent(ctx echo.Context, messageChan chan string, finishFunc func() error) error {
-	res := ctx.Response()
-	res.Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	res.Header().Set("Transfer-Encoding", "chunked")
-	res.Header().Set("Cache-Control", "no-cache")
-	res.Header().Set("Connection", "keep-open")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
+type receiveOptions struct {
+	userId      string
+	projectId   string
+	action      string
+	messageChan chan string
+	finishFunc  func() error
+}
 
-	encoder := json.NewEncoder(res)
-	flusher, ok := res.Writer.(http.Flusher)
-	if !ok {
-		ctx.Logger().Error("Response writer does not support flushing")
-		return errors.New("response writer does not support flushing")
+func buildReceiveOptions(userId, projectId, action string, messageChan chan string, finishFunc func() error) receiveOptions {
+	return receiveOptions{
+		userId:      userId,
+		projectId:   projectId,
+		action:      action,
+		messageChan: messageChan,
+		finishFunc:  finishFunc,
 	}
+}
 
+// receiveMessageAndSent reads messages from the message channel and sends then to the user via server side events.
+// When the channel is closed, it calls the finishFunc to perform any final actions (like updating project status) and ends the response.
+func receiveMessageAndSent(options receiveOptions) error {
+	logger.Debugf("Build project: Listening for messages for user %s", options.userId)
 	for {
-		message, hasMessage := <-messageChan
+		message, hasMessage := <-options.messageChan
 		if !hasMessage {
 			// Channel closed, finish the response
-			if err := finishFunc(); err != nil {
-				ctx.Logger().Errorf("Failed to finish response: %s", err.Error())
+			if err := options.finishFunc(); err != nil {
+				logger.Errorf("Failed to finish response: %s", err.Error())
 				return err
 			}
-			_, _ = res.Write([]byte("\n\n"))
-			res.WriteHeader(http.StatusOK)
-			return nil
+			logger.Debugf("Message channel closed for user %s", options.userId)
+			if message == "" {
+				return nil
+			}
 		}
 
-		msgList := parseMessage(message)
+		msgList := parseMessage(options.projectId, options.action, message)
 		for _, msg := range msgList {
-			if err := encoder.Encode(&msg); err != nil {
-				return err
+			sendMessage, err := utils.Stringify(msg)
+			if err != nil {
+				logger.Errorf("Failed to serialize message: %s", err.Error())
+				continue
 			}
-			logger.Debugf("Sent message to client: %s", msg.Message)
+			err = connManager.SendTo(options.userId, sendMessage)
+			if err != nil {
+				logger.Errorf("Failed to send message to user %s: %s", options.userId, err.Error())
+				continue
+			}
 		}
-		flusher.Flush() // Ensure the message is sent immediately
 	}
 }
