@@ -1,11 +1,12 @@
 import axios from 'axios';
 import type { ProjectDto } from './project.models.ts';
 
-export const fetchProjectList = async (): Promise<ProjectDto[]> => {
+export const fetchProjectList = async (userId: string): Promise<ProjectDto[]> => {
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      'x-pierflow-user': userId,
     },
     url: '/api/projects',
   };

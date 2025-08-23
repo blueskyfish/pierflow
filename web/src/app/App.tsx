@@ -11,6 +11,7 @@ import {
   ProjectStartPage,
   ProjectStopPage,
   RootPage,
+  SsePage,
 } from '@blueskyfish/pierflow/pages';
 import { ProjectPath, RoutePath } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Pull)} element={<ProjectPullPage />} />
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Delete)} element={<ProjectDeletePage />} />
         </Route>
+        <Route path={'/sse'} element={<SsePage />} />
       </Route>
     </Routes>
   );
