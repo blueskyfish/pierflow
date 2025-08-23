@@ -1,5 +1,5 @@
 import { App } from '@blueskyfish/pierflow/app';
-import { StoreProvider } from '@blueskyfish/pierflow/stores';
+import { EventsProvider, StoreProvider } from '@blueskyfish/pierflow/stores';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter as Router } from 'react-router';
@@ -18,9 +18,11 @@ const renderNode = strictMode ? (
   </StrictMode>
 ) : (
   <StoreProvider>
-    <Router>
-      <App />
-    </Router>
+    <EventsProvider>
+      <Router>
+        <App />
+      </Router>
+    </EventsProvider>
   </StoreProvider>
 );
 

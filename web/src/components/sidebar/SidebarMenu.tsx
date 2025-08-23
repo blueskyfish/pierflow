@@ -42,6 +42,14 @@ export const SidebarMenu: React.FC<SidebarMenuProps> = ({ selected, menu }) => {
           disabled={false}
         />
       ))}
+      <SidebarItem
+        menuKey={'sse'}
+        label={'SSE Test'}
+        link={'/sse'}
+        icon={'mdi mdi-server'}
+        selected={'sse' === selected}
+        disabled={false}
+      />
     </ul>
   );
 };

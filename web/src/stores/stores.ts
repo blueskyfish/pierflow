@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
+import { EventFeatureKey, eventReducer } from './events';
 import { LayoutFeatureKey, layoutReducer } from './layout';
 import { pageTitleMiddleware } from './page-title.middleware.ts';
 import { ProjectFeatureKey, projectMiddleware, projectReducer } from './projects';
@@ -8,6 +9,7 @@ export const store = configureStore({
   reducer: {
     [ProjectFeatureKey]: projectReducer,
     [LayoutFeatureKey]: layoutReducer,
+    [EventFeatureKey]: eventReducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(pageTitleMiddleware, projectMiddleware);
