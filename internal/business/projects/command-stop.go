@@ -18,8 +18,8 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 		logger.Infof("Stop project '%s' with force", project.Name)
 	}
 
-	// Create a buffered channel for messages to avoid blocking the task execution
-	messageChan := make(chan string, 20)
+	// Create an unbuffered channel for messages to avoid blocking the task execution
+	messageChan := make(chan string)
 
 	// Stop the project
 	pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameStop, messageChan)

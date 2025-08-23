@@ -21,8 +21,8 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 	if force {
 		logger.Infof("Build project '%s' with force", project.Name)
 	}
-	// Create a buffered channel for messages to avoid blocking the task execution
-	messageChan := make(chan string, 20)
+	// Create an unbuffered channel for messages to avoid blocking the task execution
+	messageChan := make(chan string)
 
 	// Build the project
 	pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameBuild, messageChan)
