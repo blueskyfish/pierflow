@@ -22,8 +22,8 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 		logger.Infof("Start project '%s' with force", project.Name)
 	}
 
-	// Create a buffered channel for messages to avoid blocking the task execution
-	messageChan := make(chan string, 20)
+	// Create an unbuffered channel for messages to avoid blocking the task execution
+	messageChan := make(chan string)
 
 	// Start to run the project
 	pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameStart, messageChan)

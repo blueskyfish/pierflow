@@ -85,7 +85,7 @@ func receiveMessageAndSent(options receiveOptions) error {
 			}
 			err = connManager.SendTo(options.userId, sendMessage)
 			if err != nil {
-				logger.Errorf("Failed to send message to user %s: %s", options.userId, err.Error())
+				logger.Errorf("Failed to send message to user '%s': %v", options.userId, err)
 				continue
 			}
 		}
