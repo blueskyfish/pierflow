@@ -8,10 +8,10 @@ import (
 	"time"
 )
 
-func parseMessage(projectId, action, message string) []Message {
+func parseMessage(projectId, action, message string) []EventMessageResponse {
 	parts := strings.SplitN(message, "|", 2)
 	if len(parts) < 2 {
-		return []Message{{
+		return []EventMessageResponse{{
 			Action:    action,
 			ProjectId: projectId,
 			Status:    "warning",
@@ -22,13 +22,13 @@ func parseMessage(projectId, action, message string) []Message {
 
 	list := strings.Split(parts[1], "\n")
 
-	var messageList []Message
+	var messageList []EventMessageResponse
 	for _, msg := range list {
 		m := strings.Trim(msg, " \n\t")
 		if m == "" {
 			continue // Skip empty messages
 		}
-		messageList = append(messageList, Message{
+		messageList = append(messageList, EventMessageResponse{
 			Action:    action,
 			ProjectId: projectId,
 			Status:    parts[0],
@@ -41,11 +41,11 @@ func parseMessage(projectId, action, message string) []Message {
 }
 
 type receiveOptions struct {
-	userId      string
-	projectId   string
-	action      string
-	messageChan chan string
-	finishFunc  func() error
+	userId      string       // user unique id
+	projectId   string       // project unique id
+	action      string       // the action name of the command
+	messageChan chan string  // the message channel to read messages from
+	finishFunc  func() error // function to call when the channel is closed
 }
 
 func buildReceiveOptions(userId, projectId, action string, messageChan chan string, finishFunc func() error) receiveOptions {
@@ -59,8 +59,9 @@ func buildReceiveOptions(userId, projectId, action string, messageChan chan stri
 }
 
 // receiveMessageAndSent reads messages from the message channel and sends then to the user via server side events.
+//
 // When the channel is closed, it calls the finishFunc to perform any final actions (like updating project status) and ends the response.
-func receiveMessageAndSent(options receiveOptions) error {
+func (pm *ProjectManager) receiveMessageAndSent(options receiveOptions) error {
 	logger.Debugf("Build project: Listening for messages for user %s", options.userId)
 	for {
 		message, hasMessage := <-options.messageChan
@@ -70,7 +71,7 @@ func receiveMessageAndSent(options receiveOptions) error {
 				logger.Errorf("Failed to finish response: %s", err.Error())
 				return err
 			}
-			logger.Debugf("Message channel closed for user %s", options.userId)
+			logger.Debugf("Message channel closed for user '%s'", options.userId)
 			if message == "" {
 				return nil
 			}
@@ -83,7 +84,7 @@ func receiveMessageAndSent(options receiveOptions) error {
 				logger.Errorf("Failed to serialize message: %s", err.Error())
 				continue
 			}
-			err = connManager.SendTo(options.userId, sendMessage)
+			err = pm.eventClient.SendTo(options.userId, sendMessage)
 			if err != nil {
 				logger.Errorf("Failed to send message to user '%s': %v", options.userId, err)
 				continue

@@ -77,6 +77,6 @@ func (tc *taskClient) runTask(ctx context.Context, projectPath, taskFile, taskNa
 		logger.Errorf("failed to run task: %s", err.Error())
 		messageChan <- toErrorf("failed to run task: %s", err.Error())
 	} else {
-		messageChan <- toOkayf("Task '%s' finished", taskName)
+		messageChan <- toOkayf("task [%s] finished", taskName)
 	}
 }
