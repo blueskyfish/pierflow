@@ -33,7 +33,7 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     // timer handle for reconnection attempts
-    let reconnectTimer = undefined;
+    let reconnectTimer: number | undefined = undefined;
 
     const connect = () => {
       if (reconnectTimer) {
@@ -56,6 +56,8 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
           es.close();
           setEventSource(null);
 
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           reconnectTimer = setTimeout(() => connect(), 5_000);
         };
 
@@ -68,6 +70,7 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
           console.log('Received heartbeat =>', event.data);
         });
 
+        // store the event source in state
         setEventSource(es);
       }
     };
