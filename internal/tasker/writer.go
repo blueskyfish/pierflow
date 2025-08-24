@@ -2,17 +2,15 @@ package tasker
 
 import "fmt"
 
-const (
-	MessageError = -1
-	MessageOK    = 0
-	MessageEnd   = 1
-)
-
 type TaskWriter struct {
 	prefix      string
 	messageChan chan string
 }
 
+// newTaskWriter creates a new TaskWriter with the given prefix and message channel.
+//
+// The prefix is used to categorize the messages (e.g., "okay", "error").
+// The messageChan is a channel where the formatted messages will be sent `e.g. "okay|Task completed successfully"`.
 func newTaskWriter(prefix string, messageChan chan string) *TaskWriter {
 	return &TaskWriter{
 		prefix:      prefix,

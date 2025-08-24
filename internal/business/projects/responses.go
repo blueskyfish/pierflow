@@ -60,7 +60,8 @@ type BranchListResponse struct {
 	Messages []string      `json:"messages"`
 }
 
-type Message struct {
+// EventMessageResponse represents a message sent to the client via server-sent events.
+type EventMessageResponse struct {
 	Action    string    `json:"action"`
 	ProjectId string    `json:"id"`     // Project ID
 	Status    string    `json:"status"` // Status code, if applicable

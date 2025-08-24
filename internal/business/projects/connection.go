@@ -118,20 +118,20 @@ func (cm *ConnectManager) Listen(ctx echo.Context) error {
 	}
 }
 
-func (pm *ProjectManager) UserConnect(ctx echo.Context) error {
-	err := connManager.Listen(ctx)
+func (pm *ProjectManager) ProjectEventConnect(ctx echo.Context) error {
+	err := pm.eventClient.Listen(ctx)
 	if err != nil {
 		return err
 	}
 	return ctx.String(http.StatusNoContent, "")
 }
 
-func (pm *ProjectManager) SendPing(ctx echo.Context) error {
+func (pm *ProjectManager) ProjectEventPing(ctx echo.Context) error {
 	userId := ctx.Param("id")
 	if userId == "" {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("user is required"))
 	}
-	err := connManager.SendTo(userId, "ping")
+	err := pm.eventClient.SendTo(userId, "ping")
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, toErrorResponse(err.Error()))
 	}

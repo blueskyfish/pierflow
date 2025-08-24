@@ -35,7 +35,7 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 		},
 	)
 
-	err := receiveMessageAndSent(options)
+	err := pm.receiveMessageAndSent(options)
 	if err != nil {
 		return err
 	}

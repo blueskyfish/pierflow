@@ -3,6 +3,8 @@ import * as React from 'react';
 import { createContext, type PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { addMessage, setError, updateStatus } from './events.slice';
 
+const PROJECT_CONNECT_PATH = '/api/projects/connect/{userId}';
+
 export interface EventsContextValue {
   eventSource: EventSource | null;
 }
@@ -44,7 +46,7 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
       if (!eventSource && !!userRef.current) {
         dispatch(updateStatus('connecting'));
         dispatch(setError(null));
-        const es = new EventSource(`/api/users/${encodeURIComponent(userRef.current)}`);
+        const es = new EventSource(PROJECT_CONNECT_PATH.replace('{userId}', encodeURIComponent(userRef.current)));
         es.onopen = () => {
           dispatch(updateStatus('connected'));
           console.log('SSE connected.');

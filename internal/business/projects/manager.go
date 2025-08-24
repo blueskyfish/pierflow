@@ -2,6 +2,7 @@ package projects
 
 import (
 	"path"
+	"pierflow/internal/eventer"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
 	"pierflow/internal/tasker"
@@ -15,10 +16,11 @@ const DbMaxOpenConnections = 100 // Maximum number of open connections to the da
 const DbConnMaxLifetime = 0      // Maximum amount of time a connection may be reused
 
 type ProjectManager struct {
-	db         *gorm.DB          // Database connection
-	basePath   string            // Base path for all projects
-	gitClient  gitter.GitClient  // Git client for repository operations
-	taskClient tasker.TaskClient // Task client for task operations
+	db          *gorm.DB            // Database connection
+	basePath    string              // Base path for all projects
+	gitClient   gitter.GitClient    // Git client for repository operations
+	taskClient  tasker.TaskClient   // Task client for task operations
+	eventClient eventer.EventClient // Event client for event operations with server-sent events
 }
 
 // NewProjectManager creates a new instance of ProjectManager.
@@ -49,9 +51,10 @@ func NewProjectManager(basePath, dbPath string) (*ProjectManager, error) {
 	}
 
 	return &ProjectManager{
-		db:         db,
-		basePath:   basePath,
-		gitClient:  gitter.NewGitClient(basePath),
-		taskClient: tasker.NewTaskClient(basePath),
+		db:          db,
+		basePath:    basePath,
+		gitClient:   gitter.NewGitClient(basePath),
+		taskClient:  tasker.NewTaskClient(basePath),
+		eventClient: eventer.NewEventClient(),
 	}, nil
 }

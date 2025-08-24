@@ -1,11 +1,11 @@
 meta {
-  name: GET User Send
+  name: GET Project Event Ping
   type: http
   seq: 15
 }
 
 get {
-  url: http://{{HOST}}:{{PORT}}/api/users/4711/ping
+  url: http://{{HOST}}:{{PORT}}/api/projects/ping/4711
   body: none
   auth: inherit
 }
