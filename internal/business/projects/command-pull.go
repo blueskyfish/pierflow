@@ -10,8 +10,8 @@ import (
 func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 	projectId := ctx.Param("id")
 
-	var project DbProject
-	if err := pm.db.Find(&project, "id = ?", projectId).Error; err != nil {
+	project := pm.findProjectById(projectId)
+	if project == nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("DbProject not found"))
 	}
 
@@ -30,5 +30,5 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Pulling is failed in project '%s' => %s", project.Name, err.Error()))
 	}
 
-	return ctx.JSON(http.StatusOK, toProjectBranchMessageListResponse(&project, branch, resultMsg))
+	return ctx.JSON(http.StatusOK, toProjectBranchMessageListResponse(project, branch, resultMsg))
 }
