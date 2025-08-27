@@ -3,6 +3,7 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
+	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -25,6 +26,11 @@ func (pm *ProjectManager) GetTaskFileList(ctx echo.Context) error {
 }
 
 func (pm *ProjectManager) GetTaskNameListByTaskFile(ctx echo.Context) error {
+	userId := utils.HeaderUser(ctx)
+	if userId == "" {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+	}
+
 	projectId := ctx.Param("id")
 	taskFile := ctx.Param("taskFile")
 
@@ -37,13 +43,18 @@ func (pm *ProjectManager) GetTaskNameListByTaskFile(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Task file name is required"))
 	}
 
-	taskNames, err := pm.taskClient.TaskList(project.Path, taskFile)
+	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+
+	pm.taskClient.TaskList(project.Path, taskFile, messager)
+
+	err := pm.listenEventMessager(userId, project.ID, "task-list", messager, nil)
+
 	if err != nil {
 		logger.Warnf("Task file '%s' not found in project '%s': %s", taskFile, project.Name, err.Error())
 		return ctx.JSON(http.StatusNotFound, toErrorResponseF("Taskfile '%s' not found", taskFile))
 	}
 
-	return ctx.JSON(http.StatusOK, taskNames)
+	return ctx.String(http.StatusNoContent, "")
 }
 
 func (pm *ProjectManager) prepareProjectTask(ctx echo.Context, command ProjectCommand) (*DbProject, *TaskFileProjectPayload, bool, *ProjectError) {

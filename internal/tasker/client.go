@@ -1,12 +1,12 @@
 package tasker
 
 import (
-	"context"
+	"pierflow/internal/eventer"
 )
 
 type TaskClient interface {
-	RunTask(ctx context.Context, projectPath, taskFile, taskName string, messageChan chan string)
-	TaskList(projectPath, taskFile string) ([]*TaskItem, error)
+	RunTask(projectPath, taskFile, taskName string, messager eventer.Messager)
+	TaskList(projectPath, taskFile string, messager eventer.Messager)
 }
 
 type taskClient struct {

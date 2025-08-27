@@ -4,36 +4,58 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
-func (g *gitClient) Pull(ctx context.Context, path string, o *PullOptions) (string, *Branch, error) {
+type PullOptions struct {
+	User   string
+	Token  string
+	GitUrl string
+	Path   string
+}
+
+func (g *gitClient) Pull(ctx context.Context, o *PullOptions, messager eventer.Messager) {
+	go g.runPull(ctx, o, messager)
+}
+
+func (g *gitClient) runPull(ctx context.Context, o *PullOptions, messager eventer.Messager) {
+	// close the messager channel when the function exits
+	defer messager.Closing()
+
 	if o == nil {
-		return "", nil, errors.New("pull options are required")
+		logger.Error("pull options are required")
+		return
 	}
 
-	reposPath := filepath.Join(g.basePath, path)
-	logger.Infof("pull repository '%s'", reposPath)
+	// Lock the mutex to ensure thread safety during the pull operation
+	// it is closed after the pull operation is complete
+	// to allow other operations to proceed
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
+	repositoryPath := filepath.Join(g.basePath, o.Path)
 
 	// Open git repository
-	repo, err := git.PlainOpen(reposPath)
+	repo, err := git.PlainOpen(repositoryPath)
 	if err != nil {
-		return "", nil, err
+		_ = messager.Send(eventer.StatusError, err.Error())
+		return
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return "", nil, err
+		_ = messager.Send(eventer.StatusError, err.Error())
+		return
 	}
-
-	progressor := newProgressor()
 
 	head, err := getHead(repo)
 	if err != nil {
-		return "", nil, err
+		_ = messager.Send(eventer.StatusError, err.Error())
+		return
 	}
 
 	// Pull the latest changes
@@ -42,13 +64,20 @@ func (g *gitClient) Pull(ctx context.Context, path string, o *PullOptions) (stri
 		RemoteName:    git.DefaultRemoteName,
 		ReferenceName: head,
 		RemoteURL:     o.GitUrl,
-		Progress:      progressor,
+		Progress:      messager,
 		Force:         true,
 		SingleBranch:  true,
 	})
 	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
-		return "", nil, err
+		_ = messager.Send(eventer.StatusError, err.Error())
+		return
 	}
 
-	return progressor.String(), toBranch(head, true), nil
+	head, err = getHead(repo)
+	if err != nil {
+		_ = messager.Send(eventer.StatusError, err.Error())
+		return
+	}
+
+	_ = messager.Send(eventer.StatusSuccess, toBranch(head, true))
 }

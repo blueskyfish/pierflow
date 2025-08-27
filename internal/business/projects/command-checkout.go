@@ -3,6 +3,7 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
+	"pierflow/internal/eventer"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
 
@@ -10,37 +11,53 @@ import (
 )
 
 func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
+	userId := utils.HeaderUser(ctx)
+	if userId == "" {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+	}
+
 	projectId := ctx.Param("id")
 	refresh := utils.QueryBool(ctx, "refresh", false)
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(404, toErrorResponse("Not found project"))
+		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
 	}
 
 	if err := verifier.VerifyStatus(CommandCreateProject, project.Status); err != nil {
-		return ctx.JSON(400, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
 	// build the branch options
-	options := &gitter.BranchOptions{
+	options := gitter.BranchOptions{
 		Refresh: refresh,
 	}
 	if refresh {
 		options.User = project.User
 		options.Token = project.Token
 		options.Prune = true
+		options.Path = project.Path
 	}
 
-	message, branches, err := pm.gitClient.BranchList(ctx.Request().Context(), project.Path, options)
+	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+
+	logger.Infof("Get branches for project '%s' with refresh=%t", project.Name, refresh)
+	pm.gitClient.BranchList(ctx.Request().Context(), &options, messager)
+
+	// wait for the operation to complete
+	err := pm.listenEventMessager(userId, project.ID, CommandCreateProject.String(), messager, nil)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to get branches for project '%s' => %s", project.Name, err.Error()))
 	}
-
-	return ctx.JSON(http.StatusOK, toBranchResponse(branches, message))
+	return ctx.String(http.StatusNoContent, "")
 }
 
 func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
+	userId := utils.HeaderUser(ctx)
+	if userId == "" {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+	}
+
 	projectId := ctx.Param("id")
 	var payload CheckoutPayload
 	if err := ctx.Bind(&payload); err != nil {
@@ -56,21 +73,21 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	}
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)
 
-	options := &gitter.CheckoutOptions{
+	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+
+	options := gitter.CheckoutOptions{
 		Branch: payload.Branch,
 		Place:  payload.Place,
+		Path:   project.Path,
 	}
 
-	branch, err := pm.gitClient.CheckoutBranch(project.Path, options)
+	pm.gitClient.Checkout(&options, messager)
+
+	err := pm.listenEventMessager(userId, project.ID, CommandCheckoutRepository.String(), messager, func() error {
+		return pm.updateProjectStatus(project, StatusCheckedOut)
+	})
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to checkout branch '%s' in project '%s' => %s", payload.Branch, project.Name, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Checkout is failed in project '%s' => %s", project.Name, err.Error()))
 	}
-
-	err = pm.updateProjectStatus(project, StatusCheckedOut)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, toErrorResponse("Failed to update project status to 'checked out'"))
-	}
-
-	logger.Infof("DbProject '%s' branch '%s' is checked out successfully", project.Name, branch.Branch)
-	return ctx.JSON(http.StatusOK, toBranchInfo(branch))
+	return ctx.String(http.StatusNoContent, "")
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
 
 	"github.com/go-git/go-git/v5"
@@ -22,6 +23,14 @@ const (
 	BranchPlaceRemoteName  = "remote"
 	BranchPlaceUnknownName = "unknown"
 )
+
+type BranchOptions struct {
+	Refresh bool
+	User    string
+	Token   string
+	Path    string
+	Prune   bool
+}
 
 func (p BranchPlace) String() string {
 	switch p {
@@ -46,39 +55,50 @@ func StringBranchPlace(s string) (BranchPlace, error) {
 }
 
 type Branch struct {
-	Branch string      `json:"branch"`
-	Place  BranchPlace `json:"place"`
-	Active bool        `json:"active"`
+	Branch string
+	Place  BranchPlace
+	Path   string
+	Active bool
 }
 
-func (g *gitClient) BranchList(ctx context.Context, path string, options *BranchOptions) (string, []Branch, error) {
+func (g *gitClient) BranchList(ctx context.Context, options *BranchOptions, messager eventer.Messager) {
+	go g.runBranchList(ctx, options, messager)
+}
 
-	if options == nil {
-		options = &BranchOptions{Refresh: false, User: "", Token: "", Prune: false}
+func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, messager eventer.Messager) {
+	// close the messager channel when the function exits
+	defer messager.Closing()
+
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
+	if o == nil {
+		logger.Error("branch options are required")
+		return
 	}
 
-	reposPath := filepath.Join(g.basePath, path)
+	reposPath := filepath.Join(g.basePath, o.Path)
 
 	// Open git repository
 	repo, err := git.PlainOpen(reposPath)
 	if err != nil {
-		return "", nil, err
+		_ = messager.Send(eventer.StatusError, err.Error())
+		return
 	}
 
-	progressor := newProgressor()
-
-	if options.Refresh {
+	if o.Refresh {
 		err = repo.FetchContext(ctx, &git.FetchOptions{
 			Force: true,
 			Auth: &http.BasicAuth{
-				Username: options.User,
-				Password: options.Token,
+				Username: o.User,
+				Password: o.Token,
 			},
-			Prune:    options.Prune,
-			Progress: progressor,
+			Prune:    o.Prune,
+			Progress: messager,
 		})
 		if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
-			return "Refresh is failed", nil, err
+			_ = messager.Send(eventer.StatusError, err.Error())
+			return
 		}
 		logger.Infof("fetch branches in repository '%s'", reposPath)
 	}
@@ -86,13 +106,15 @@ func (g *gitClient) BranchList(ctx context.Context, path string, options *Branch
 	// Get all references in the repository
 	refs, err := repo.References()
 	if err != nil {
-		return "Repository without branches", nil, err
+		_ = messager.Send(eventer.StatusError, "Repository without branches")
+		return
 	}
 
 	// Get the current branch
 	head, err := getHead(repo)
 	if err != nil {
-		return "Repository without header", nil, err
+		_ = messager.Send(eventer.StatusError, "Repository without header")
+		return
 	}
 	currentBranch := head.Short()
 	logger.Infof("branch list with current branch: %s", currentBranch)
@@ -116,60 +138,9 @@ func (g *gitClient) BranchList(ctx context.Context, path string, options *Branch
 	})
 
 	if len(list) == 0 {
-		return "Repository empty branches", []Branch{}, nil
-	}
-	return progressor.String(), list, nil
-}
-
-func (g *gitClient) CheckoutBranch(path string, o *CheckoutOptions) (*Branch, error) {
-	if o == nil {
-		return nil, errors.New("checkout options are required")
+		_ = messager.Send(eventer.StatusInfo, "Repository empty branches")
+		return
 	}
 
-	place, err := StringBranchPlace(o.Place)
-	if err != nil {
-		return nil, err
-	}
-
-	branch := o.Branch
-	if place == BranchPlaceRemote {
-		branch = adjustBranchName(branch)
-	}
-
-	reposPath := filepath.Join(g.basePath, path)
-	logger.Infof("checkout branch '%s' in repository '%s'", o.Branch, reposPath)
-
-	// Open git repository
-	repo, err := git.PlainOpen(reposPath)
-	if err != nil {
-		return nil, err
-	}
-
-	// Checkout the specified branch
-	worktree, err := repo.Worktree()
-	if err != nil {
-		return nil, err
-	}
-
-	// Get the current branch
-	head, err := getHead(repo)
-	if err != nil {
-		return nil, err
-	}
-
-	branchRef := plumbing.NewBranchReferenceName(branch)
-	ref, err := repo.Reference(branchRef, true)
-	branchExist := err == nil || (ref != nil && ref.Name().Short() == head.Short())
-
-	err = checkoutBranch(worktree, branchExist, branchRef)
-	if err != nil {
-		return nil, err
-	}
-
-	head, err = getHead(repo)
-	if err != nil {
-		return nil, err
-	}
-
-	return toBranch(head, true), nil
+	_ = messager.Send(eventer.StatusSuccess, list)
 }
