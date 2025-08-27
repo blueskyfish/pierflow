@@ -30,7 +30,7 @@ var verifier = statusVerifier{
 		CommandCloneRepository:    {StatusCreated},
 		CommandCheckoutRepository: {StatusCloned, StatusCreated, StatusCheckedOut},
 		CommandBuildProject:       {StatusCheckedOut, StatusBuilt, StatusCloned, StatusPulled, StatusStopped},
-		CommandPullRepository:     {StatusCloned, StatusPulled, StatusCheckedOut, StatusStopped, StatusBuilt, StatusCreated},
+		CommandPullRepository:     {StatusCloned, StatusPulled, StatusCheckedOut, StatusStopped, StatusBuilt, StatusCreated}, // TODO check if Created should be here
 		CommandStartProject:       {StatusBuilt, StatusStopped},
 		CommandStopProject:        {StatusRun},
 		CommandDeleteProject:      {StatusStopped, StatusCloned, StatusCheckedOut, StatusBuilt},

@@ -3,6 +3,7 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
+	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -13,6 +14,11 @@ import (
 // The payload TaskFileProjectPayload includes the task file to be used for the start process and a message.
 // The query parameter "force" can be used to force the start even if the project status is not suitable for starting.
 func (pm *ProjectManager) StartProject(ctx echo.Context) error {
+	userId := utils.HeaderUser(ctx)
+	if userId == "" {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+	}
+
 	project, payload, force, pErr := pm.prepareProjectTask(ctx, CommandStartProject)
 	if pErr != nil {
 		return pErr.JSON(ctx)
@@ -22,24 +28,15 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 		logger.Infof("Start project '%s' with force", project.Name)
 	}
 
-	// Create an unbuffered channel for messages to avoid blocking the task execution
-	messageChan := make(chan string)
+	messager := eventer.NewMessager(eventer.StatusDebug, nil)
 
 	// Start to run the project
-	pm.taskClient.RunTask(ctx.Request().Context(), project.Path, payload.TaskFile, TaskNameStart, messageChan)
+	pm.taskClient.RunTask(project.Path, payload.TaskFile, TaskNameStart, messager)
 
-	// Receive messages and send them to the client over server-sent events (SSE)
-	options := buildReceiveOptions(
-		utils.HeaderUser(ctx),
-		project.ID,
-		TaskNameStart,
-		messageChan,
-		func() error {
-			return pm.updateProjectStatus(project, StatusRun)
-		},
-	)
+	err := pm.listenEventMessager(userId, project.ID, CommandStartProject.String(), messager, func() error {
+		return pm.updateProjectStatus(project, StatusRun)
+	})
 
-	err := pm.receiveMessageAndSent(options)
 	if err != nil {
 		return err
 	}

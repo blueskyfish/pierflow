@@ -12,17 +12,17 @@ import (
 )
 
 type eventManager struct {
-	clients map[string]chan string
+	clients map[string]chan EventData
 	mutex   sync.RWMutex
 	eventID int64
 }
 
-func (em *eventManager) AddClient(userId string) chan string {
+func (em *eventManager) AddClient(userId string) chan EventData {
 	em.mutex.Lock()
 	defer em.mutex.Unlock()
 
 	if _, exists := em.clients[userId]; !exists {
-		em.clients[userId] = make(chan string) // blocked channel
+		em.clients[userId] = make(chan EventData) // blocked channel
 		logger.Debugf("[%s] Added new client", userId)
 	}
 	return em.clients[userId]
@@ -39,14 +39,15 @@ func (em *eventManager) RemoveClient(userId string) {
 	}
 }
 
-func (em *eventManager) SendTo(userId string, event string) error {
+func (em *eventManager) SendTo(userId, event, data string) error {
 	em.mutex.RLock()
 	defer em.mutex.RUnlock()
 
 	if ch, exists := em.clients[userId]; exists {
 		select {
 		// blocking send
-		case ch <- event:
+		case ch <- EventData{Event: event, Data: data}:
+			logger.Debugf("[%s] Sent event to user: %s", userId, event)
 			return nil
 		default:
 			return nil
@@ -86,16 +87,22 @@ func (em *eventManager) Listen(ctx echo.Context) error {
 				continue
 			}
 
+			ev := event.Event
+			if ev == "" {
+				ev = "message"
+			}
+			data := event.Data
+
 			em.eventID++
 			// SSE-Format: id, event type und data
-			response := fmt.Sprintf("id: %d\nevent: message\ndata: %s\n\n", em.eventID, event)
+			response := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", em.eventID, ev, data)
 			_, err := ctx.Response().Write([]byte(response))
 			if err != nil {
 				logger.Errorf("[%s] Failed to write event to user: %v", userId, err)
 				return err
 			}
 			ctx.Response().Flush()
-			logger.Debugf("[%s] Sent event: %s", userId, event)
+			logger.Debugf("[%s] Sent event: %v", userId, event)
 
 		case <-ticker.C:
 			// Heartbeat send

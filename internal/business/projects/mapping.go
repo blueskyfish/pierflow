@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"pierflow/internal/eventer"
 	"pierflow/internal/gitter"
 	"strings"
 	"time"
@@ -65,5 +66,15 @@ func toProjectTaskMessageListResponse(p *DbProject, taskFile, taskName, message 
 		TaskFile:        taskFile,
 		TaskName:        taskName,
 		Messages:        strings.Split(message, "\n"),
+	}
+}
+
+func toEventMessageResponse(projectId, action string, msg *eventer.Message) *EventMessageResponse {
+	return &EventMessageResponse{
+		Action:    action,
+		ProjectId: projectId,
+		Status:    msg.Status,
+		Message:   msg.Message,
+		Time:      msg.Time,
 	}
 }

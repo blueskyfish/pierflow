@@ -4,6 +4,7 @@
       <w>debugf</w>
       <w>giturl</w>
       <w>infof</w>
+      <w>messager</w>
       <w>pierflow</w>
       <w>taskfile</w>
       <w>warnf</w>

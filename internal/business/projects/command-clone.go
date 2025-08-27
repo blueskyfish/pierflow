@@ -2,6 +2,9 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/utils"
+	"pierflow/internal/eventer"
+	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -9,6 +12,11 @@ import (
 
 // CloneRepositoryProject try to clone the project into the filesystem with git
 func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
+	userId := utils.HeaderUser(ctx)
+	if userId == "" {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+	}
+
 	projectId := ctx.Param("id")
 
 	var message CommandPayload
@@ -26,15 +34,23 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
-	resultMsg, err := pm.gitClient.Clone(ctx.Request().Context(), project.User, project.Token, project.GitUrl, project.Path)
+	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+
+	options := gitter.CloneOptions{
+		User:    project.User,
+		Token:   project.Token,
+		RepoUrl: project.GitUrl,
+		Path:    project.Path,
+	}
+
+	pm.gitClient.Clone(ctx.Request().Context(), &options, messager)
+
+	err := pm.listenEventMessager(userId, project.ID, CommandCloneRepository.String(), messager, func() error {
+		return pm.updateProjectStatus(project, StatusCloned)
+	})
+
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Cloning is failed in project '%s' => %s", project.Name, err.Error()))
 	}
-
-	err = pm.updateProjectStatus(project, StatusCloned)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, toErrorResponse("Failed to update project status into 'cloned'"))
-	}
-
-	return ctx.JSON(http.StatusOK, toProjectMessageListResponse(project, resultMsg))
+	return ctx.String(http.StatusNoContent, "")
 }

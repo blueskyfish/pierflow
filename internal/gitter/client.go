@@ -2,39 +2,22 @@ package gitter
 
 import (
 	"context"
-	"errors"
-	"os"
-	"path/filepath"
-	"pierflow/internal/logger"
+	"pierflow/internal/eventer"
 	"sync"
-
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
-type CheckoutOptions struct {
-	Branch string `json:"branch"`
-	Place  string `json:"place"`
-}
-
-type BranchOptions struct {
-	Refresh bool   `json:"refresh"`
-	User    string `json:"user"`
-	Token   string `json:"token"`
-	Prune   bool   `json:"prune"`
-}
-
-type PullOptions struct {
-	User   string `json:"user"`
-	Token  string `json:"token"`
-	GitUrl string `json:"gitUrl"`
-}
-
 type GitClient interface {
-	Clone(ctx context.Context, user, token, repoUrl, path string) (string, error)
-	BranchList(ctx context.Context, path string, options *BranchOptions) (string, []Branch, error)
-	CheckoutBranch(path string, o *CheckoutOptions) (*Branch, error)
-	Pull(ctx context.Context, path string, o *PullOptions) (string, *Branch, error)
+	// Clone a git repository to the specified path.
+	Clone(ctx context.Context, o *CloneOptions, messager eventer.Messager)
+
+	// BranchList lists branches in the specified repository path.
+	BranchList(ctx context.Context, options *BranchOptions, messager eventer.Messager)
+
+	// Checkout a specific branch in the given repository path.
+	Checkout(o *CheckoutOptions, messager eventer.Messager)
+
+	// Pull the latest changes from the remote repository.
+	Pull(ctx context.Context, o *PullOptions, messager eventer.Messager)
 }
 
 type gitClient struct {
@@ -50,36 +33,4 @@ func NewGitClient(basePath string) GitClient {
 		basePath: basePath,
 		mutex:    sync.RWMutex{},
 	}
-}
-
-func (g *gitClient) Clone(ctx context.Context, user, token, repoUrl, path string) (string, error) {
-	g.mutex.Lock()
-	defer g.mutex.Unlock()
-
-	repositoryPath := filepath.Join(g.basePath, path)
-
-	// Error if repositoryPath is existing
-	if _, err := os.Stat(repositoryPath); err == nil {
-		return "", errors.New("repository already exists")
-	}
-	logger.Infof("cloning repository from %s to %s", repoUrl, repositoryPath)
-
-	progressor := newProgressor()
-
-	_, err := git.PlainCloneContext(ctx, repositoryPath, false, &git.CloneOptions{
-		URL:      repoUrl,
-		Progress: progressor,
-		Auth: &http.BasicAuth{
-			Username: user,
-			Password: token,
-		},
-	})
-
-	if err != nil {
-		return "", err
-	}
-
-	// Implement the logic to clone a git repository
-	// This is a placeholder implementation
-	return progressor.String(), nil
 }
