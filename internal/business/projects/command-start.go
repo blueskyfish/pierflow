@@ -31,7 +31,7 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 	messager := eventer.NewMessager(eventer.StatusDebug, nil)
 
 	// Start to run the project
-	pm.taskClient.RunTask(project.Path, payload.TaskFile, TaskNameStart, messager)
+	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameStart, messager)
 
 	err := pm.listenEventMessager(userId, project.ID, CommandStartProject.String(), messager, func() error {
 		return pm.updateProjectStatus(project, StatusRun)

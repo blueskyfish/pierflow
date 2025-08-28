@@ -5,8 +5,11 @@ import (
 )
 
 type TaskClient interface {
-	RunTask(projectPath, taskFile, taskName string, messager eventer.Messager)
-	TaskList(projectPath, taskFile string, messager eventer.Messager)
+	// Task executes a specific task defined in the Taskfile located in the project directory.
+	Task(projectPath, taskFile, taskName string, messager eventer.Messager)
+
+	// List lists all available tasks defined in the Taskfile located in the project directory.
+	List(projectPath, taskFile string, messager eventer.Messager)
 }
 
 type taskClient struct {
