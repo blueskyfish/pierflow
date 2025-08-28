@@ -97,15 +97,12 @@ func (m *messager) Write(data []byte) (n int, err error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
-	if data[len(data)-1] == '\n' {
-		data = data[:len(data)-1]
-	}
-	if len(data) == 0 {
-		return len(data), nil
-	}
 
 	messages := strings.Split(string(data), "\n")
 	for _, message := range messages {
+		if message == "" {
+			continue
+		}
 		err = m.Send(m.status, message)
 		if err != nil {
 			return 0, err
