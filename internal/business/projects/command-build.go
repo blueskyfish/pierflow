@@ -31,7 +31,7 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 	messager := eventer.NewMessager(eventer.StatusDebug, nil)
 
 	// Build the project
-	pm.taskClient.RunTask(project.Path, payload.TaskFile, TaskNameBuild, messager)
+	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameBuild, messager)
 
 	err := pm.listenEventMessager(userId, project.ID, CommandBuildProject.String(), messager, func() error {
 		return pm.updateProjectStatus(project, StatusBuilt)

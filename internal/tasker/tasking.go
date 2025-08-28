@@ -11,7 +11,7 @@ import (
 	"github.com/go-task/task/v3"
 )
 
-func (tc *taskClient) RunTask(projectPath, taskFile, taskName string, messager eventer.Messager) {
+func (tc *taskClient) Task(projectPath, taskFile, taskName string, messager eventer.Messager) {
 	logger.Debugf("Taskfile: %s", taskFile)
 	logger.Debugf("Project Path: %s", projectPath)
 	logger.Debugf("Task Name: %s", taskName)
@@ -19,7 +19,7 @@ func (tc *taskClient) RunTask(projectPath, taskFile, taskName string, messager e
 	go tc.runTask(projectPath, taskFile, taskName, messager)
 }
 
-func (tc *taskClient) TaskList(projectPath, taskFile string, messager eventer.Messager) {
+func (tc *taskClient) List(projectPath, taskFile string, messager eventer.Messager) {
 	logger.Debugf("Taskfile: %s", taskFile)
 	logger.Debugf("Project Path: %s", projectPath)
 	go tc.runTaskList(projectPath, taskFile, messager)

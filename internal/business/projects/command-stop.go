@@ -27,7 +27,7 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 	messager := eventer.NewMessager(eventer.StatusDebug, nil)
 
 	// Stop the project
-	pm.taskClient.RunTask(project.Path, payload.TaskFile, TaskNameStop, messager)
+	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameStop, messager)
 
 	err := pm.listenEventMessager(userId, project.ID, CommandStopProject.String(), messager, func() error {
 		return pm.updateProjectStatus(project, StatusStopped)

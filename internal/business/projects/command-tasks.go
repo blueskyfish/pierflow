@@ -45,7 +45,7 @@ func (pm *ProjectManager) GetTaskNameListByTaskFile(ctx echo.Context) error {
 
 	messager := eventer.NewMessager(eventer.StatusDebug, nil)
 
-	pm.taskClient.TaskList(project.Path, taskFile, messager)
+	pm.taskClient.List(project.Path, taskFile, messager)
 
 	err := pm.listenEventMessager(userId, project.ID, "task-list", messager, nil)
 
