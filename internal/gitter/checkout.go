@@ -21,7 +21,7 @@ func (g *gitClient) Checkout(o *CheckoutOptions, messager eventer.Messager) {
 }
 
 func (g *gitClient) runCheckout(o *CheckoutOptions, messager eventer.Messager) {
-	defer messager.Closing()
+	defer messager.Close()
 
 	if o == nil {
 		logger.Error("checkout options are required")

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"pierflow/internal/business/utils"
 	"pierflow/internal/logger"
 	"sync"
 	"time"
@@ -11,42 +12,42 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type eventManager struct {
-	clients map[string]chan EventData
+type eventServe struct {
+	clients map[string]chan ServerSentEvent
 	mutex   sync.RWMutex
 	eventID int64
 }
 
-func (em *eventManager) AddClient(userId string) chan EventData {
-	em.mutex.Lock()
-	defer em.mutex.Unlock()
+func (es *eventServe) addClient(userId string) chan ServerSentEvent {
+	es.mutex.Lock()
+	defer es.mutex.Unlock()
 
-	if _, exists := em.clients[userId]; !exists {
-		em.clients[userId] = make(chan EventData) // blocked channel
+	if _, exists := es.clients[userId]; !exists {
+		es.clients[userId] = make(chan ServerSentEvent) // blocked channel
 		logger.Debugf("[%s] Added new client", userId)
 	}
-	return em.clients[userId]
+	return es.clients[userId]
 }
 
-func (em *eventManager) RemoveClient(userId string) {
-	em.mutex.Lock()
-	defer em.mutex.Unlock()
+func (es *eventServe) removeClient(userId string) {
+	es.mutex.Lock()
+	defer es.mutex.Unlock()
 
-	if ch, exists := em.clients[userId]; exists {
-		close(ch)
-		delete(em.clients, userId)
+	if eventChan, exists := es.clients[userId]; exists {
+		close(eventChan)
+		delete(es.clients, userId)
 		logger.Debugf("[%s] Removed client", userId)
 	}
 }
 
-func (em *eventManager) SendTo(userId, event, data string) error {
-	em.mutex.RLock()
-	defer em.mutex.RUnlock()
+func (es *eventServe) SendTo(userId, event, data string) error {
+	es.mutex.RLock()
+	defer es.mutex.RUnlock()
 
-	if ch, exists := em.clients[userId]; exists {
+	if ch, exists := es.clients[userId]; exists {
 		select {
 		// blocking send
-		case ch <- EventData{Event: event, Data: data}:
+		case ch <- ServerSentEvent{Message: event, Data: data}:
 			logger.Debugf("[%s] Sent event to user: %s", userId, event)
 			return nil
 		default:
@@ -56,17 +57,20 @@ func (em *eventManager) SendTo(userId, event, data string) error {
 	return errors.New(fmt.Sprintf("user '%s' not found", userId))
 }
 
-func (em *eventManager) Listen(ctx echo.Context) error {
+func (es *eventServe) Listen(ctx echo.Context) error {
 	userId := ctx.Param("id")
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, &map[string]string{
-			"message": "user is required",
-		})
+		userId = ctx.QueryParam("id")
+		if userId == "" {
+			return ctx.JSON(http.StatusBadRequest, &map[string]string{
+				"message": "user is required",
+			})
+		}
 	}
 
-	ch := em.AddClient(userId)
+	eventChan := es.addClient(userId)
 	// Remove client on exit
-	defer em.RemoveClient(userId)
+	defer es.removeClient(userId)
 
 	// set server-side event Headers
 	ctx.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
@@ -81,21 +85,21 @@ func (em *eventManager) Listen(ctx echo.Context) error {
 
 	for {
 		select {
-		case event, ok := <-ch:
+		case event, ok := <-eventChan:
 			if !ok {
 				logger.Debugf("[%s] Channel closed for user", userId)
 				continue
 			}
 
-			ev := event.Event
-			if ev == "" {
-				ev = "message"
+			message := event.Message
+			if message == "" {
+				message = "message"
 			}
 			data := event.Data
 
-			em.eventID++
+			es.eventID++
 			// SSE-Format: id, event type und data
-			response := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", em.eventID, ev, data)
+			response := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", es.eventID, message, data)
 			_, err := ctx.Response().Write([]byte(response))
 			if err != nil {
 				logger.Errorf("[%s] Failed to write event to user: %v", userId, err)
@@ -105,9 +109,9 @@ func (em *eventManager) Listen(ctx echo.Context) error {
 			logger.Debugf("[%s] Sent event: %v", userId, event)
 
 		case <-ticker.C:
-			// Heartbeat send
-			em.eventID++
-			response := fmt.Sprintf("id: %d\nevent: heartbeat\ndata: ping\n\n", em.eventID)
+			// Heartbeat sends
+			es.eventID++
+			response := fmt.Sprintf("id: %d\nevent: heartbeat\ndata: ping\n\n", es.eventID)
 			_, err := ctx.Response().Write([]byte(response))
 			if err != nil {
 				logger.Errorf("[%s] Failed to send heartbeat to user: %v", userId, err)
@@ -119,5 +123,53 @@ func (em *eventManager) Listen(ctx echo.Context) error {
 			logger.Debugf("[%s] Request is cancel: %v", userId, ctx.Request().Context().Err())
 			return nil
 		}
+	}
+}
+
+func (es *eventServe) Messager(message, status, userId, projectId string) (Messager, error) {
+	if message == "" {
+		message = "message"
+	}
+
+	eventChan, okay := es.clients[userId]
+	if !okay {
+		return nil, errors.New("user not found")
+	}
+
+	bodyChan := make(chan MessageBody) // blocked channel
+	go es.broadcast(bodyChan, message, eventChan)
+
+	if status == "" {
+		status = "debug"
+	}
+
+	m := &messager{
+		status:    status,
+		projectId: projectId,
+		channel:   bodyChan,
+		TimeFunc:  defaultTimeFunc,
+	}
+
+	return m, nil
+}
+
+func (es *eventServe) broadcast(channel chan MessageBody, message string, eventChan chan ServerSentEvent) {
+	for {
+		msg, ok := <-channel
+		if !ok {
+			return
+		}
+
+		data, err := utils.Stringify(msg)
+		if err != nil {
+			logger.Errorf("Failed to stringify message: %v", err)
+			continue
+		}
+
+		event := ServerSentEvent{
+			Message: message,
+			Data:    data,
+		}
+		eventChan <- event
 	}
 }

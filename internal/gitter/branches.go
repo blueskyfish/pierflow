@@ -67,7 +67,7 @@ func (g *gitClient) BranchList(ctx context.Context, options *BranchOptions, mess
 
 func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, messager eventer.Messager) {
 	// close the messager channel when the function exits
-	defer messager.Closing()
+	defer messager.Close()
 
 	g.mutex.Lock()
 	defer g.mutex.Unlock()

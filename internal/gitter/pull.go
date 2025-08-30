@@ -24,7 +24,7 @@ func (g *gitClient) Pull(ctx context.Context, o *PullOptions, messager eventer.M
 
 func (g *gitClient) runPull(ctx context.Context, o *PullOptions, messager eventer.Messager) {
 	// close the messager channel when the function exits
-	defer messager.Closing()
+	defer messager.Close()
 
 	if o == nil {
 		logger.Error("pull options are required")

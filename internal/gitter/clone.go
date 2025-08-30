@@ -28,7 +28,7 @@ func (g *gitClient) Clone(ctx context.Context, o *CloneOptions, messager eventer
 // and sends progress messages through the provided messager.
 func (g *gitClient) runClone(ctx context.Context, o *CloneOptions, messager eventer.Messager) {
 	// close the messager channel when the function exits
-	defer messager.Closing()
+	defer messager.Close()
 
 	if o == nil {
 		logger.Error("clone options are required")
