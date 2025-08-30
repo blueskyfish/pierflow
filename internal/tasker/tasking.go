@@ -26,7 +26,7 @@ func (tc *taskClient) List(projectPath, taskFile string, messager eventer.Messag
 }
 
 func (tc *taskClient) runTask(projectPath, taskFile, taskName string, messager eventer.Messager) {
-	defer messager.Closing()
+	defer messager.Close()
 
 	executor := tc.createExecute(projectPath, taskFile, messager)
 	if err := executor.Setup(); err != nil {
@@ -46,7 +46,7 @@ func (tc *taskClient) runTask(projectPath, taskFile, taskName string, messager e
 }
 
 func (tc *taskClient) runTaskList(projectPath, taskFile string, messager eventer.Messager) {
-	defer messager.Closing()
+	defer messager.Close()
 
 	executor := tc.createExecute(projectPath, taskFile, messager)
 	if err := executor.Setup(); err != nil {

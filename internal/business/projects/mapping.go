@@ -69,7 +69,7 @@ func toProjectTaskMessageListResponse(p *DbProject, taskFile, taskName, message 
 	}
 }
 
-func toEventMessageResponse(projectId, action string, msg *eventer.Message) *EventMessageResponse {
+func toEventMessageResponse(projectId, action string, msg *eventer.MessageBody) *EventMessageResponse {
 	return &EventMessageResponse{
 		Action:    action,
 		ProjectId: projectId,

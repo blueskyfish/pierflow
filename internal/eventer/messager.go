@@ -1,9 +1,9 @@
 package eventer
 
 import (
-	"encoding/json"
 	"errors"
 	"io"
+	"pierflow/internal/business/utils"
 	"strings"
 	"time"
 )
@@ -15,17 +15,18 @@ const (
 	StatusSuccess = "success"
 )
 
-type Message struct {
-	Status  string    `json:"status"`
-	Message string    `json:"message"` // can be any type, using interface{} for flexibility
-	Time    time.Time `json:"time"`    // The UTC timestamp of the message
+type MessageBody struct {
+	Status    string    `json:"status"`
+	ProjectId string    `json:"id"`
+	Message   string    `json:"message"` // can be any type, using interface{} for flexibility
+	Time      time.Time `json:"time"`    // The UTC timestamp of the message
 }
 
 type TimeFunc func() time.Time
 
+// Messager send MessageBody to the channel
 type Messager interface {
 	io.Writer
-	io.Closer
 
 	// Send sends a message with the given status and message content.
 	//
@@ -36,61 +37,45 @@ type Messager interface {
 	// Receive receives a message from the channel.
 	//
 	// Receive is called in the consumer goroutine.
-	// It returns a boolean indicating if the channel is open and a pointer to the Message.
-	Receive() (bool, *Message)
+	// It returns a boolean indicating if the channel is open and a pointer to the MessageBody.
+	Receive() chan MessageBody
 
-	// Closing closes the message channel.
+	// Close closes the message channel.
 	//
 	// It is called in the producer goroutine to signal that no more messages will be sent.
-	Closing()
-}
-
-// NewMessager creates a new Messager instance with the provided TimeFunc.
-//
-// The status parameter is the default status for messages; it can be overridden in the Send method.
-// The TimeFunc is used to generate timestamps for messages; if nil, the current UTC time is used.
-func NewMessager(status string, timeFunc TimeFunc) Messager {
-	if timeFunc == nil {
-		timeFunc = defaultTimeFunc
-	}
-	return &messager{
-		status:   status,
-		channel:  make(chan Message), // Blocked channel
-		TimeFunc: timeFunc,
-	}
+	Close()
 }
 
 // messager implements the Messager interface using a channel for communication.
 type messager struct {
-	status   string // The default status for messages
-	channel  chan Message
-	TimeFunc TimeFunc
+	status    string // The default status for messages
+	projectId string
+	channel   chan MessageBody
+	TimeFunc  TimeFunc
 }
 
 func (m *messager) Send(status string, message interface{}) error {
 	if _, ok := message.(string); !ok {
-		byteValue, err := json.Marshal(message)
+		// Convert non-string message to JSON string
+		text, err := utils.Stringify(message)
 		if err != nil {
 			return errors.New("failed to convert message instance to string")
 		}
-		message = string(byteValue)
+		message = text
 	}
 
-	msg := Message{
-		Status:  status,
-		Message: message.(string),
-		Time:    m.TimeFunc(),
+	msg := MessageBody{
+		Status:    status,
+		ProjectId: m.projectId,
+		Message:   message.(string),
+		Time:      m.TimeFunc(),
 	}
 	m.channel <- msg
 	return nil
 }
 
-func (m *messager) Receive() (bool, *Message) {
-	msg, ok := <-m.channel
-	if !ok {
-		return false, nil
-	}
-	return true, &msg
+func (m *messager) Receive() chan MessageBody {
+	return m.channel
 }
 
 func (m *messager) Write(data []byte) (n int, err error) {
@@ -112,13 +97,8 @@ func (m *messager) Write(data []byte) (n int, err error) {
 	return len(data), nil
 }
 
-func (m *messager) Close() error {
+func (m *messager) Close() {
 	close(m.channel)
-	return nil
-}
-
-func (m *messager) Closing() {
-	_ = m.Close()
 }
 
 func defaultTimeFunc() time.Time {
