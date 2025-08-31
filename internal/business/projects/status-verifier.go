@@ -61,8 +61,9 @@ func (sv *statusVerifier) StatusListBy(command ProjectCommand) []ProjectStatus {
 }
 
 func (sv *statusVerifier) VerifyStatus(command ProjectCommand, currentStatus ProjectStatus) error {
-	if command == CommandCreateProject {
+	if command == CommandCreateProject || command == CommandBranchList {
 		// Create project command does not have a status
+		// Branch list command is always allowed
 		return nil
 	}
 	validStatuses, exists := sv.mapStatus[command]

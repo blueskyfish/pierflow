@@ -3,7 +3,6 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
-	"pierflow/internal/eventer"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
 
@@ -24,7 +23,7 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
 	}
 
-	if err := verifier.VerifyStatus(CommandCreateProject, project.Status); err != nil {
+	if err := verifier.VerifyStatus(CommandBranchList, project.Status); err != nil {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
@@ -39,16 +38,12 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 		options.Path = project.Path
 	}
 
-	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+	messager := pm.eventServe.Messager(userId, CommandBranchList.Message(), project.ID, nil)
 
+	// get the branch list
 	logger.Infof("Get branches for project '%s' with refresh=%t", project.Name, refresh)
 	pm.gitClient.BranchList(ctx.Request().Context(), &options, messager)
 
-	// wait for the operation to complete
-	err := pm.listenEventMessager(userId, project.ID, CommandCreateProject.String(), messager, nil)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to get branches for project '%s' => %s", project.Name, err.Error()))
-	}
 	return ctx.String(http.StatusNoContent, "")
 }
 
@@ -73,8 +68,13 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	}
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)
 
-	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+	messager := pm.eventServe.Messager(userId, CommandCheckoutRepository.Message(), project.ID, func() {
+		if err := pm.updateProjectStatus(project, StatusCheckedOut); err != nil {
+			logger.Errorf("Failed to update project status to '%s': %s", StatusCheckedOut, err.Error())
+		}
+	})
 
+	// checkout the branch
 	options := gitter.CheckoutOptions{
 		Branch: payload.Branch,
 		Place:  payload.Place,
@@ -82,12 +82,5 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	}
 
 	pm.gitClient.Checkout(&options, messager)
-
-	err := pm.listenEventMessager(userId, project.ID, CommandCheckoutRepository.String(), messager, func() error {
-		return pm.updateProjectStatus(project, StatusCheckedOut)
-	})
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Checkout is failed in project '%s' => %s", project.Name, err.Error()))
-	}
 	return ctx.String(http.StatusNoContent, "")
 }

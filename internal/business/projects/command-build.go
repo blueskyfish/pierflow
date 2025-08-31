@@ -3,7 +3,6 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
-	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -28,16 +27,14 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 		logger.Infof("Build project '%s' with force", project.Name)
 	}
 
-	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+	messager := pm.eventServe.Messager(userId, CommandBuildProject.Message(), project.ID, func() {
+		if err := pm.updateProjectStatus(project, StatusBuilt); err != nil {
+			logger.Errorf("Failed to update project status to '%s': %s", StatusBuilt, err.Error())
+		}
+	})
 
 	// Build the project
 	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameBuild, messager)
 
-	err := pm.listenEventMessager(userId, project.ID, CommandBuildProject.String(), messager, func() error {
-		return pm.updateProjectStatus(project, StatusBuilt)
-	})
-	if err != nil {
-		return err
-	}
 	return ctx.String(http.StatusNoContent, "")
 }

@@ -1,5 +1,7 @@
 package projects
 
+import "fmt"
+
 type ProjectCommand string
 
 const (
@@ -15,26 +17,15 @@ const (
 	CommandStopProject        ProjectCommand = "stop-project"
 	CommandDeleteProject      ProjectCommand = "delete-project"
 	CommandTaggingVersion     ProjectCommand = "tagging-version"
+
+	CommandTaskList   ProjectCommand = "task-list"   // Not directly a command, but used to list tasks in a task file
+	CommandBranchList ProjectCommand = "branch-list" // Not directly a command, but used to list branches in a repository
 )
 
 func (c ProjectCommand) String() string {
 	return string(c)
 }
 
-func ProjectCommandFrom(s string) (ProjectCommand, bool) {
-	switch s {
-	case CommandCreateProject.String(),
-		CommandCloneRepository.String(),
-		CommandCheckoutRepository.String(),
-		CommandBuildProject.String(),
-		CommandPullRepository.String(),
-		CommandStartProject.String(),
-		CommandStopProject.String(),
-		CommandTaggingVersion.String(),
-		CommandDeleteProject.String(),
-		CommandTaggingVersion.String():
-		return ProjectCommand(s), true
-	default:
-		return "", false
-	}
+func (c ProjectCommand) Message() string {
+	return fmt.Sprintf("message.%s", c.String())
 }

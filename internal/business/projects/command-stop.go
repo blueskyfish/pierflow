@@ -3,7 +3,6 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
-	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
@@ -24,16 +23,14 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 		logger.Infof("Stop project '%s' with force", project.Name)
 	}
 
-	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+	messager := pm.eventServe.Messager(userId, CommandStopProject.Message(), project.ID, func() {
+		if err := pm.updateProjectStatus(project, StatusStopped); err != nil {
+			logger.Errorf("Failed to update project status to '%s': %s", StatusStopped, err.Error())
+		}
+	})
 
 	// Stop the project
 	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameStop, messager)
 
-	err := pm.listenEventMessager(userId, project.ID, CommandStopProject.String(), messager, func() error {
-		return pm.updateProjectStatus(project, StatusStopped)
-	})
-	if err != nil {
-		return err
-	}
 	return ctx.String(http.StatusNoContent, "")
 }

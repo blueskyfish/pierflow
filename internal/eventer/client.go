@@ -1,7 +1,6 @@
 package eventer
 
 import (
-	"encoding/json"
 	"sync"
 
 	"github.com/labstack/echo/v4"
@@ -17,15 +16,15 @@ type ServerSentEvent struct {
 
 // EventServe interface defines methods for managing event clients and sending events.
 type EventServe interface {
-	// SendTo sends an event to a specific user identified by userId.
+	// Send sends an event to a specific user identified by userId.
 	//
 	// It sent to a message channel associated with the userId.
 	// If the user is not found, it returns an error
 	//
-	// The SendTo method is called in the producer goroutine to send events to the client.
+	// The Send method is called in the producer goroutine to send events to the client.
 	// It is a blocking call, meaning it will wait until the event is sent to the channel.
 	// If the userId does not exist, it returns an error indicating that the user was not found.
-	SendTo(userId, message, data string) error
+	Send(userId, message, data string) error
 
 	// Listen handles incoming requests to listen for events for a specific user.
 	//
@@ -44,10 +43,11 @@ type EventServe interface {
 	//
 	// Before a specific command is executed, a Messager should be created to capture all messages
 	// related to that command. The Messager should be closed after the command is completed to avoid memory leaks.
+	// The finishFunc is a function that will be called when the Messager is closed.
 	//
 	// The Messager method is called in the producer goroutine to create a new message channel for sending messages.
 	// It returns a Messager instance that can be used to send messages to the client.
-	Messager(message, status, userId, projectId string) (Messager, error)
+	Messager(userId, message, projectId string, finishFunc func()) Messager
 }
 
 func NewEventServe() EventServe {
@@ -56,20 +56,4 @@ func NewEventServe() EventServe {
 		mutex:   sync.RWMutex{},
 		eventID: 0,
 	}
-}
-
-func toChannel(message string, data interface{}) (*ServerSentEvent, error) {
-	if message == "" {
-		message = "message"
-	}
-
-	dataStr, ok := data.(string)
-	if !ok {
-		value, err := json.Marshal(data)
-		if err != nil {
-			return nil, err
-		}
-		return &ServerSentEvent{Message: message, Data: string(value)}, nil
-	}
-	return &ServerSentEvent{Message: message, Data: dataStr}, nil
 }

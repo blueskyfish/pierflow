@@ -40,15 +40,15 @@ func (es *eventServe) removeClient(userId string) {
 	}
 }
 
-func (es *eventServe) SendTo(userId, event, data string) error {
+func (es *eventServe) Send(userId, message, data string) error {
 	es.mutex.RLock()
 	defer es.mutex.RUnlock()
 
 	if ch, exists := es.clients[userId]; exists {
 		select {
 		// blocking send
-		case ch <- ServerSentEvent{Message: event, Data: data}:
-			logger.Debugf("[%s] Sent event to user: %s", userId, event)
+		case ch <- ServerSentEvent{Message: message, Data: data}:
+			logger.Debugf("[%s] Sent message to user: %s", userId, message)
 			return nil
 		default:
 			return nil
@@ -126,37 +126,35 @@ func (es *eventServe) Listen(ctx echo.Context) error {
 	}
 }
 
-func (es *eventServe) Messager(message, status, userId, projectId string) (Messager, error) {
+func (es *eventServe) Messager(userId, message, projectId string, finishFunc func()) Messager {
 	if message == "" {
 		message = "message"
 	}
 
 	eventChan, okay := es.clients[userId]
 	if !okay {
-		return nil, errors.New("user not found")
+		return nil
 	}
 
 	bodyChan := make(chan MessageBody) // blocked channel
-	go es.broadcast(bodyChan, message, eventChan)
+	go es.broadcast(bodyChan, message, eventChan, finishFunc)
 
-	if status == "" {
-		status = "debug"
-	}
-
-	m := &messager{
-		status:    status,
+	return &messager{
+		status:    StatusDebug,
 		projectId: projectId,
 		channel:   bodyChan,
 		TimeFunc:  defaultTimeFunc,
 	}
-
-	return m, nil
 }
 
-func (es *eventServe) broadcast(channel chan MessageBody, message string, eventChan chan ServerSentEvent) {
+func (es *eventServe) broadcast(channel chan MessageBody, message string, eventChan chan ServerSentEvent, finishFunc func()) {
 	for {
 		msg, ok := <-channel
 		if !ok {
+			logger.Debugf("[%s] Channel closed for user", message)
+			if finishFunc != nil {
+				finishFunc()
+			}
 			return
 		}
 
