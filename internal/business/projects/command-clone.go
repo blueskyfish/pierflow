@@ -3,7 +3,6 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
-	"pierflow/internal/eventer"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
 
@@ -34,23 +33,19 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
-	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+	messager := pm.eventServe.Messager(userId, CommandCloneRepository.Message(), project.ID, func() {
+		if err := pm.updateProjectStatus(project, StatusCloned); err != nil {
+			logger.Errorf("Failed to update project status to '%s': %s", StatusCloned, err.Error())
+		}
+	})
 
+	// clone the repository
 	options := gitter.CloneOptions{
 		User:    project.User,
 		Token:   project.Token,
 		RepoUrl: project.GitUrl,
 		Path:    project.Path,
 	}
-
 	pm.gitClient.Clone(ctx.Request().Context(), &options, messager)
-
-	err := pm.listenEventMessager(userId, project.ID, CommandCloneRepository.String(), messager, func() error {
-		return pm.updateProjectStatus(project, StatusCloned)
-	})
-
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Cloning is failed in project '%s' => %s", project.Name, err.Error()))
-	}
 	return ctx.String(http.StatusNoContent, "")
 }

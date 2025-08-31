@@ -38,7 +38,7 @@ type Messager interface {
 	//
 	// Receive is called in the consumer goroutine.
 	// It returns a boolean indicating if the channel is open and a pointer to the MessageBody.
-	Receive() chan MessageBody
+	Receive() (bool, *MessageBody)
 
 	// Close closes the message channel.
 	//
@@ -48,10 +48,10 @@ type Messager interface {
 
 // messager implements the Messager interface using a channel for communication.
 type messager struct {
-	status    string // The default status for messages
-	projectId string
-	channel   chan MessageBody
-	TimeFunc  TimeFunc
+	status    string           // The default status for messages
+	projectId string           // The project ID associated with the messages
+	channel   chan MessageBody // The channel for sending messages
+	TimeFunc  TimeFunc         // Function to get the current time, defaults to UTC now
 }
 
 func (m *messager) Send(status string, message interface{}) error {
@@ -74,8 +74,12 @@ func (m *messager) Send(status string, message interface{}) error {
 	return nil
 }
 
-func (m *messager) Receive() chan MessageBody {
-	return m.channel
+func (m *messager) Receive() (bool, *MessageBody) {
+	msg, ok := <-m.channel
+	if !ok {
+		return false, nil
+	}
+	return true, &msg
 }
 
 func (m *messager) Write(data []byte) (n int, err error) {

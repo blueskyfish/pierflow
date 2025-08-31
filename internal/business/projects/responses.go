@@ -2,7 +2,6 @@ package projects
 
 import (
 	"fmt"
-	"time"
 )
 
 type ErrorResponse struct {
@@ -58,13 +57,4 @@ type BranchInfo struct {
 type BranchListResponse struct {
 	Branches []*BranchInfo `json:"branches"`
 	Messages []string      `json:"messages"`
-}
-
-// EventMessageResponse represents a message sent to the client via server-sent events.
-type EventMessageResponse struct {
-	Action    string    `json:"action"`
-	ProjectId string    `json:"id"`     // Project ID
-	Status    string    `json:"status"` // Status code, if applicable
-	Message   string    `json:"message"`
-	Time      time.Time `json:"time"`
 }

@@ -3,8 +3,6 @@ package projects
 import (
 	"net/http"
 	"pierflow/internal/business/utils"
-	"pierflow/internal/eventer"
-	"pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
 )
@@ -43,16 +41,10 @@ func (pm *ProjectManager) GetTaskNameListByTaskFile(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Task file name is required"))
 	}
 
-	messager := eventer.NewMessager(eventer.StatusDebug, nil)
+	messager := pm.eventServe.Messager(userId, CommandTaskList.Message(), project.ID, nil)
 
+	// Start to list the task names
 	pm.taskClient.List(project.Path, taskFile, messager)
-
-	err := pm.listenEventMessager(userId, project.ID, "task-list", messager, nil)
-
-	if err != nil {
-		logger.Warnf("Task file '%s' not found in project '%s': %s", taskFile, project.Name, err.Error())
-		return ctx.JSON(http.StatusNotFound, toErrorResponseF("Taskfile '%s' not found", taskFile))
-	}
 
 	return ctx.String(http.StatusNoContent, "")
 }
