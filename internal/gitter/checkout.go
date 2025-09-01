@@ -30,7 +30,7 @@ func (g *gitClient) runCheckout(o *CheckoutOptions, messager eventer.Messager) {
 
 	place, err := StringBranchPlace(o.Place)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
@@ -45,21 +45,21 @@ func (g *gitClient) runCheckout(o *CheckoutOptions, messager eventer.Messager) {
 	// Open git repository
 	repo, err := git.PlainOpen(reposPath)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
-	// Checkout the specified branch
+	// Chec kout the specified branch
 	worktree, err := repo.Worktree()
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
 	// Get the current branch
 	head, err := getHead(repo)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
@@ -67,20 +67,20 @@ func (g *gitClient) runCheckout(o *CheckoutOptions, messager eventer.Messager) {
 	ref, err := repo.Reference(branchRef, true)
 	branchExist := err == nil || (ref != nil && ref.Name().Short() == head.Short())
 
-	_ = messager.Send(eventer.StatusInfo, fmt.Sprintf("start checkout branch '%s'", branch))
+	messager.Send(eventer.StatusInfo, fmt.Sprintf("start checkout branch '%s'", branch))
 	err = checkoutBranch(worktree, branchExist, branchRef)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
-	_ = messager.Send(eventer.StatusInfo, fmt.Sprintf("checkout branch '%s' success", branch))
+	messager.Send(eventer.StatusInfo, fmt.Sprintf("checkout branch '%s' success", branch))
 
 	head, err = getHead(repo)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
-	_ = messager.Send(eventer.StatusSuccess, toBranch(head, true))
+	messager.Send(eventer.StatusSuccess, toBranch(head, true))
 }
 
 func checkoutBranch(worktree *git.Worktree, exist bool, branchRef plumbing.ReferenceName) error {

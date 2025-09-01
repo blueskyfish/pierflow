@@ -82,7 +82,7 @@ func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, message
 	// Open git repository
 	repo, err := git.PlainOpen(reposPath)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
@@ -97,7 +97,7 @@ func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, message
 			Progress: messager,
 		})
 		if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
-			_ = messager.Send(eventer.StatusError, err.Error())
+			messager.Send(eventer.StatusError, err.Error())
 			return
 		}
 		logger.Infof("fetch branches in repository '%s'", reposPath)
@@ -106,14 +106,14 @@ func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, message
 	// Get all references in the repository
 	refs, err := repo.References()
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, "Repository without branches")
+		messager.Send(eventer.StatusError, "Repository without branches")
 		return
 	}
 
 	// Get the current branch
 	head, err := getHead(repo)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, "Repository without header")
+		messager.Send(eventer.StatusError, "Repository without header")
 		return
 	}
 	currentBranch := head.Short()
@@ -138,9 +138,9 @@ func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, message
 	})
 
 	if len(list) == 0 {
-		_ = messager.Send(eventer.StatusInfo, "Repository empty branches")
+		messager.Send(eventer.StatusInfo, "Repository empty branches")
 		return
 	}
 
-	_ = messager.Send(eventer.StatusSuccess, list)
+	messager.Send(eventer.StatusSuccess, list)
 }

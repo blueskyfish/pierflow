@@ -41,8 +41,8 @@ func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 		GitUrl:      payload.GitUrl,
 		Path:        payload.Path,
 		Branch:      "",
-		Creation:    now.Unix(),
-		Modified:    now.Unix(),
+		Creation:    now.UTC().Unix(),
+		Modified:    now.UTC().Unix(),
 		Status:      StatusCreated,
 	}
 
@@ -68,7 +68,7 @@ func (pm *ProjectManager) findProjectById(projectId string) *DbProject {
 func (pm *ProjectManager) updateProjectStatus(p *DbProject, status ProjectStatus) error {
 	return pm.db.Transaction(func(tx *gorm.DB) error {
 		p.Status = status
-		p.Modified = time.Now().Unix()
+		p.Modified = time.Now().UTC().Unix()
 		return tx.Save(p).Error
 	})
 }

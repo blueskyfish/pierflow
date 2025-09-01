@@ -41,7 +41,7 @@ func (pm *ProjectManager) GetTaskNameListByTaskFile(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Task file name is required"))
 	}
 
-	messager := pm.eventServe.Messager(userId, CommandTaskList.Message(), project.ID, nil)
+	messager := pm.eventServe.WithMessage(CommandTaskList.Message(), userId, project.ID, nil)
 
 	// Start to list the task names
 	pm.taskClient.List(project.Path, taskFile, messager)

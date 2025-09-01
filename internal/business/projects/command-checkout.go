@@ -38,7 +38,7 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 		options.Path = project.Path
 	}
 
-	messager := pm.eventServe.Messager(userId, CommandBranchList.Message(), project.ID, nil)
+	messager := pm.eventServe.WithMessage(CommandBranchList.Message(), userId, project.ID, nil)
 
 	// get the branch list
 	logger.Infof("Get branches for project '%s' with refresh=%t", project.Name, refresh)
@@ -68,13 +68,13 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	}
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)
 
-	messager := pm.eventServe.Messager(userId, CommandCheckoutRepository.Message(), project.ID, func() {
+	messager := pm.eventServe.WithMessage(CommandCheckoutRepository.Message(), userId, project.ID, func() {
 		if err := pm.updateProjectStatus(project, StatusCheckedOut); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCheckedOut, err.Error())
 		}
 	})
 
-	// checkout the branch
+	// check out the branch
 	options := gitter.CheckoutOptions{
 		Branch: payload.Branch,
 		Place:  payload.Place,

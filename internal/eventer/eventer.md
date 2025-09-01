@@ -4,47 +4,62 @@
 ## Usage
 
 ```go
-messager := pm.eventer.WithMessage(
-    "command.build",
-    eventer.StatusDebug,
+package projects
+
+import (
+	"pierflow/internal/business/projects"
+	"pierflow/internal/eventer"
 )
 
-err := messager.Send(eventer.StatusSuccess, projectId, toHead(head))
-if err != nil {
-	...
+func (pm *ProjectManager) ACommand() {
+	var messager = pm.eventServe.WithMessage(
+		projects.CommandBuildProject.Message(),
+		userId,
+		projectId,
+	)
+
+	err := messager.Send(eventer.StatusSuccess, projectId, toHead(head))
+	if err != nil {
+		// ...
+	}
 }
 ```
 
 ## Entity
 
-Das Event wird in ein Server-Side Event gepackt mit einem Message gepackt.
+Das ServerSentEvent entity for sending events to the client. It contains a MessageBody as Data. The MessageBody is
+a JSON serializable struct that contains the status, data, projectId and time.
 
-### Message
+### ServerSentEvent
+
+| Name    | Type        | Json  |
+|---------|-------------|-------|
+| Message | string      | event |
+| Data    | MessageBody | data  |
+
+### MessageBody
 
 | Name      | Type      | Json      |
 |-----------|-----------|-----------|
 | Status    | string    | status    |
-| Data      | string    | data      |
+| Message   | string    | data      |
 | ProjectId | string    | projectId |
 | Time      | time.Time | time      |
 
+> The `Message` field is a string to allow any JSON serializable struct to be sent as data.
 
-### ServerSentEvent
+## Status
 
-| Name    | Type    | Json  |
-|---------|---------|-------|
-| Message | string  | event |
-| Data    | Message | data  |
+| Name          | Value     |
+|---------------|-----------|
+| StatusDebug   | "debug"   |
+| StatusInfo    | "info"    |
+| StatusWarn    | "warn"    |
+| StatusError   | "error"   |
+| StatusSuccess | "success" |
 
+## EventType
 
-## Handler
+Every command has an event type. The command type has a prefix of "message-" and extends with the command name.
 
-### Connect(ctx echo.Context) err
-
-Handle the server side events initialized by the browser with a unique id.
-
-### WithEvent(event, userId, projectId string) Messager
-
-Create a messager instance to push events from the server to the client
-
-## Messager
+> e.g. "message-build-project"

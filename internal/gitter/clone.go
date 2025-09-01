@@ -46,7 +46,7 @@ func (g *gitClient) runClone(ctx context.Context, o *CloneOptions, messager even
 
 	// Error if repositoryPath is existing
 	if _, err := os.Stat(repositoryPath); err == nil {
-		_ = messager.Send("error", "repository already exists")
+		messager.Send("error", "repository already exists")
 		return
 	}
 	logger.Infof("cloning repository from %s to %s", o.RepoUrl, repositoryPath)
@@ -60,17 +60,17 @@ func (g *gitClient) runClone(ctx context.Context, o *CloneOptions, messager even
 		},
 	})
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
 	// Get the head branch
 	head, err := getHead(repo)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
-	_ = messager.Send(eventer.StatusSuccess, toBranch(head, true))
+	messager.Send(eventer.StatusSuccess, toBranch(head, true))
 
 	logger.Infof("cloned repository successfully into '%s' with head '%s'", repositoryPath, head.String())
 }

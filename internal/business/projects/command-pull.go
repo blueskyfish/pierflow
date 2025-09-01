@@ -26,7 +26,7 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
-	messager := pm.eventServe.Messager(userId, CommandPullRepository.Message(), project.ID, func() {
+	messager := pm.eventServe.WithMessage(CommandPullRepository.Message(), userId, project.ID, func() {
 		if err := pm.updateProjectStatus(project, StatusPulled); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusPulled, err.Error())
 		}

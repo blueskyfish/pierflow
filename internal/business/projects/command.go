@@ -27,5 +27,5 @@ func (c ProjectCommand) String() string {
 }
 
 func (c ProjectCommand) Message() string {
-	return fmt.Sprintf("message.%s", c.String())
+	return fmt.Sprintf("message-%s", c.String())
 }

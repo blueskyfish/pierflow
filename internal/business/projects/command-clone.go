@@ -33,7 +33,7 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
-	messager := pm.eventServe.Messager(userId, CommandCloneRepository.Message(), project.ID, func() {
+	messager := pm.eventServe.WithMessage(CommandCloneRepository.Message(), userId, project.ID, func() {
 		if err := pm.updateProjectStatus(project, StatusCloned); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCloned, err.Error())
 		}

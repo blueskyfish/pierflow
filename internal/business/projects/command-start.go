@@ -27,7 +27,7 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 		logger.Infof("Start project '%s' with force", project.Name)
 	}
 
-	messager := pm.eventServe.Messager(userId, CommandStartProject.Message(), project.ID, func() {
+	messager := pm.eventServe.WithMessage(CommandStartProject.Message(), userId, project.ID, func() {
 		if err := pm.updateProjectStatus(project, StatusRun); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusRun, err.Error())
 		}
