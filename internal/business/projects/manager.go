@@ -20,7 +20,7 @@ type ProjectManager struct {
 	basePath   string             // Base path for all projects
 	gitClient  gitter.GitClient   // Git client for repository operations
 	taskClient tasker.TaskClient  // Task client for task operations
-	eventServe eventer.EventServe // MessageBody client for event operations with server-sent events
+	eventServe eventer.EventServe // Event serve for event operations with server-sent events
 }
 
 // NewProjectManager creates a new instance of ProjectManager.

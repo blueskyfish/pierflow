@@ -31,7 +31,7 @@ func (tc *taskClient) runTask(projectPath, taskFile, taskName string, messager e
 	executor := tc.createExecute(projectPath, taskFile, messager)
 	if err := executor.Setup(); err != nil {
 		logger.Errorf("failed to setup executor: %s", err.Error())
-		_ = messager.Send(eventer.StatusError, fmt.Sprintf("failed to setup executor: %s", err.Error()))
+		messager.Send(eventer.StatusError, fmt.Sprintf("failed to setup executor: %s", err.Error()))
 		return
 	}
 
@@ -39,9 +39,9 @@ func (tc *taskClient) runTask(projectPath, taskFile, taskName string, messager e
 	err := executor.Run(ctx, &task.Call{Task: taskName, Silent: true})
 	if err != nil {
 		logger.Errorf("failed to run task: %s", err.Error())
-		_ = messager.Send(eventer.StatusError, fmt.Sprintf("failed to run task: %s", err.Error()))
+		messager.Send(eventer.StatusError, fmt.Sprintf("failed to run task: %s", err.Error()))
 	} else {
-		_ = messager.Send(eventer.StatusInfo, fmt.Sprintf("task [%s] finished", taskName))
+		messager.Send(eventer.StatusInfo, fmt.Sprintf("task [%s] finished", taskName))
 	}
 }
 
@@ -51,14 +51,14 @@ func (tc *taskClient) runTaskList(projectPath, taskFile string, messager eventer
 	executor := tc.createExecute(projectPath, taskFile, messager)
 	if err := executor.Setup(); err != nil {
 		logger.Errorf("failed to setup executor: %s", err.Error())
-		_ = messager.Send(eventer.StatusError, fmt.Sprintf("failed to setup executor: %s", err.Error()))
+		messager.Send(eventer.StatusError, fmt.Sprintf("failed to setup executor: %s", err.Error()))
 		return
 	}
 
 	tasks, err := executor.GetTaskList()
 	if err != nil {
 		logger.Errorf("failed to list tasks: %s", err.Error())
-		_ = messager.Send(eventer.StatusError, fmt.Sprintf("failed to list tasks: %s", err.Error()))
+		messager.Send(eventer.StatusError, fmt.Sprintf("failed to list tasks: %s", err.Error()))
 		return
 	}
 
@@ -70,7 +70,7 @@ func (tc *taskClient) runTaskList(projectPath, taskFile string, messager eventer
 		list = []*TaskItem{}
 	}
 
-	_ = messager.Send(eventer.StatusSuccess, list)
+	messager.Send(eventer.StatusSuccess, list)
 }
 
 func (tc *taskClient) createExecute(projectPath, taskFile string, writer io.Writer) *task.Executor {

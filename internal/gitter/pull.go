@@ -42,19 +42,19 @@ func (g *gitClient) runPull(ctx context.Context, o *PullOptions, messager evente
 	// Open git repository
 	repo, err := git.PlainOpen(repositoryPath)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
 	head, err := getHead(repo)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
@@ -69,15 +69,15 @@ func (g *gitClient) runPull(ctx context.Context, o *PullOptions, messager evente
 		SingleBranch:  true,
 	})
 	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
 	head, err = getHead(repo)
 	if err != nil {
-		_ = messager.Send(eventer.StatusError, err.Error())
+		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
 
-	_ = messager.Send(eventer.StatusSuccess, toBranch(head, true))
+	messager.Send(eventer.StatusSuccess, toBranch(head, true))
 }

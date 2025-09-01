@@ -47,7 +47,7 @@ func (es *eventServe) Send(userId, message, data string) error {
 	if ch, exists := es.clients[userId]; exists {
 		select {
 		// blocking send
-		case ch <- ServerSentEvent{Message: message, Data: data}:
+		case ch <- ServerSentEvent{EventType: message, Data: data}:
 			logger.Debugf("[%s] Sent message to user: %s", userId, message)
 			return nil
 		default:
@@ -91,22 +91,22 @@ func (es *eventServe) Listen(ctx echo.Context) error {
 				continue
 			}
 
-			message := event.Message
-			if message == "" {
-				message = "message"
+			eventType := event.EventType
+			if eventType == "" {
+				eventType = "message"
 			}
 			data := event.Data
 
 			es.eventID++
 			// SSE-Format: id, event type und data
-			response := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", es.eventID, message, data)
+			response := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", es.eventID, eventType, data)
 			_, err := ctx.Response().Write([]byte(response))
 			if err != nil {
 				logger.Errorf("[%s] Failed to write event to user: %v", userId, err)
 				return err
 			}
 			ctx.Response().Flush()
-			logger.Debugf("[%s] Sent event: %v", userId, event)
+			logger.Debugf("[%s] Sent event: %s", userId, event.EventType)
 
 		case <-ticker.C:
 			// Heartbeat sends
@@ -126,18 +126,19 @@ func (es *eventServe) Listen(ctx echo.Context) error {
 	}
 }
 
-func (es *eventServe) Messager(userId, message, projectId string, finishFunc func()) Messager {
-	if message == "" {
-		message = "message"
+func (es *eventServe) WithMessage(eventType, userId, projectId string, finishFunc func()) Messager {
+	if eventType == "" {
+		eventType = "message"
 	}
 
 	eventChan, okay := es.clients[userId]
 	if !okay {
+		logger.Warnf("[%s] No client for user: %s", userId, eventType)
 		return nil
 	}
 
 	bodyChan := make(chan MessageBody) // blocked channel
-	go es.broadcast(bodyChan, message, eventChan, finishFunc)
+	go es.broadcast(bodyChan, eventType, eventChan, finishFunc)
 
 	return &messager{
 		status:    StatusDebug,
@@ -147,11 +148,11 @@ func (es *eventServe) Messager(userId, message, projectId string, finishFunc fun
 	}
 }
 
-func (es *eventServe) broadcast(channel chan MessageBody, message string, eventChan chan ServerSentEvent, finishFunc func()) {
+func (es *eventServe) broadcast(channel chan MessageBody, eventType string, eventChan chan ServerSentEvent, finishFunc func()) {
 	for {
 		msg, ok := <-channel
 		if !ok {
-			logger.Debugf("[%s] Channel closed for user", message)
+			logger.Debugf("[%s] Channel closed for user", eventType)
 			if finishFunc != nil {
 				finishFunc()
 			}
@@ -165,8 +166,8 @@ func (es *eventServe) broadcast(channel chan MessageBody, message string, eventC
 		}
 
 		event := ServerSentEvent{
-			Message: message,
-			Data:    data,
+			EventType: eventType,
+			Data:      data,
 		}
 		eventChan <- event
 	}

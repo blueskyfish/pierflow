@@ -15,19 +15,19 @@ import (
 func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "User is required")
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User is required"))
 	}
 
-	project, payload, force, pErr := pm.prepareProjectTask(ctx, CommandBuildProject)
-	if pErr != nil {
-		return pErr.JSON(ctx)
+	project, payload, force, err := pm.prepareProjectTask(ctx, CommandBuildProject)
+	if err != nil {
+		return err.JSON(ctx)
 	}
 
 	if force {
 		logger.Infof("Build project '%s' with force", project.Name)
 	}
 
-	messager := pm.eventServe.Messager(userId, CommandBuildProject.Message(), project.ID, func() {
+	messager := pm.eventServe.WithMessage(CommandBuildProject.Message(), userId, project.ID, func() {
 		if err := pm.updateProjectStatus(project, StatusBuilt); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusBuilt, err.Error())
 		}

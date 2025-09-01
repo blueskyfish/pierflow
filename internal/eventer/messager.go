@@ -1,9 +1,9 @@
 package eventer
 
 import (
-	"errors"
 	"io"
 	"pierflow/internal/business/utils"
+	"pierflow/internal/logger"
 	"strings"
 	"time"
 )
@@ -32,7 +32,7 @@ type Messager interface {
 	//
 	// Send is called in the producer goroutine.
 	// The message parameter can be of any type; if it's not a string, it will be marshaled to JSON.
-	Send(status string, message interface{}) error
+	Send(status string, message interface{})
 
 	// Receive receives a message from the channel.
 	//
@@ -54,12 +54,13 @@ type messager struct {
 	TimeFunc  TimeFunc         // Function to get the current time, defaults to UTC now
 }
 
-func (m *messager) Send(status string, message interface{}) error {
+func (m *messager) Send(status string, message interface{}) {
 	if _, ok := message.(string); !ok {
 		// Convert non-string message to JSON string
 		text, err := utils.Stringify(message)
 		if err != nil {
-			return errors.New("failed to convert message instance to string")
+			logger.Warnf("failed to marshal message: %v", err)
+			return
 		}
 		message = text
 	}
@@ -71,7 +72,6 @@ func (m *messager) Send(status string, message interface{}) error {
 		Time:      m.TimeFunc(),
 	}
 	m.channel <- msg
-	return nil
 }
 
 func (m *messager) Receive() (bool, *MessageBody) {
@@ -92,10 +92,7 @@ func (m *messager) Write(data []byte) (n int, err error) {
 		if message == "" {
 			continue
 		}
-		err = m.Send(m.status, message)
-		if err != nil {
-			return 0, err
-		}
+		m.Send(m.status, message)
 	}
 
 	return len(data), nil

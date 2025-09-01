@@ -8,10 +8,10 @@ import (
 
 // ServerSentEvent represents the structure of an event message.
 //
-// if the data field `MessageBody` is empty, the event is considered default event without a message type
+// if the data field `EventType` is empty, the event is considered the default event without a `message? type
 type ServerSentEvent struct {
-	Message string // The message type e.g. "message", "update", "delete", etc.
-	Data    string // The actual data payload, typically a JSON string
+	EventType string // The message type e.g. "message", "update", "delete", etc.
+	Data      string // The actual data payload, typically a JSON string
 }
 
 // EventServe interface defines methods for managing event clients and sending events.
@@ -36,7 +36,7 @@ type EventServe interface {
 	// The Listen method is called as a consumer function to receive events from the channel and send them to the client.
 	Listen(ctx echo.Context) error
 
-	// Messager creates a new Messager instance for sending messages (MessageBody) to a specific user.
+	// WithMessage creates a new Messager instance for sending messages (MessageBody) to a specific user.
 	//
 	// The project id is for the consumer to filter messages. The status is the default status for messages sent by
 	// this Messager. It is allowed to be empty, in which case "debug" is used as the default status.
@@ -47,7 +47,7 @@ type EventServe interface {
 	//
 	// The Messager method is called in the producer goroutine to create a new message channel for sending messages.
 	// It returns a Messager instance that can be used to send messages to the client.
-	Messager(userId, message, projectId string, finishFunc func()) Messager
+	WithMessage(eventType, userId, projectId string, finishFunc func()) Messager
 }
 
 func NewEventServe() EventServe {
