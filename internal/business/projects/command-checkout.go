@@ -42,7 +42,7 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 
 	// get the branch list
 	logger.Infof("Get branches for project '%s' with refresh=%t", project.Name, refresh)
-	pm.gitClient.BranchList(ctx.Request().Context(), &options, messager)
+	pm.gitClient.BranchList(&options, messager)
 
 	return ctx.String(http.StatusNoContent, "")
 }

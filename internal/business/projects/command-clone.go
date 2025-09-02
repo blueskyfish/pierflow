@@ -38,6 +38,9 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCloned, err.Error())
 		}
 	})
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+	}
 
 	// clone the repository
 	options := gitter.CloneOptions{
@@ -46,6 +49,6 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 		RepoUrl: project.GitUrl,
 		Path:    project.Path,
 	}
-	pm.gitClient.Clone(ctx.Request().Context(), &options, messager)
+	pm.gitClient.Clone(&options, messager)
 	return ctx.String(http.StatusNoContent, "")
 }

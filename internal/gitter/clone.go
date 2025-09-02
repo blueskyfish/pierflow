@@ -18,15 +18,15 @@ type CloneOptions struct {
 	Path    string
 }
 
-func (g *gitClient) Clone(ctx context.Context, o *CloneOptions, messager eventer.Messager) {
-	go g.runClone(ctx, o, messager)
+func (g *gitClient) Clone(o *CloneOptions, messager eventer.Messager) {
+	go g.runClone(o, messager)
 }
 
 // runClone performs the actual cloning operation in a separate goroutine.
 //
 // It locks the mutex to ensure thread safety during the clone operation
 // and sends progress messages through the provided messager.
-func (g *gitClient) runClone(ctx context.Context, o *CloneOptions, messager eventer.Messager) {
+func (g *gitClient) runClone(o *CloneOptions, messager eventer.Messager) {
 	// close the messager channel when the function exits
 	defer messager.Close()
 
@@ -51,7 +51,7 @@ func (g *gitClient) runClone(ctx context.Context, o *CloneOptions, messager even
 	}
 	logger.Infof("cloning repository from %s to %s", o.RepoUrl, repositoryPath)
 
-	repo, err := git.PlainCloneContext(ctx, repositoryPath, false, &git.CloneOptions{
+	repo, err := git.PlainCloneContext(context.Background(), repositoryPath, false, &git.CloneOptions{
 		URL:      o.RepoUrl,
 		Progress: messager,
 		Auth: &http.BasicAuth{

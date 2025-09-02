@@ -1,23 +1,22 @@
 package gitter
 
 import (
-	"context"
 	"pierflow/internal/eventer"
 	"sync"
 )
 
 type GitClient interface {
 	// Clone a git repository to the specified path.
-	Clone(ctx context.Context, o *CloneOptions, messager eventer.Messager)
+	Clone(o *CloneOptions, messager eventer.Messager)
 
 	// BranchList lists branches in the specified repository path.
-	BranchList(ctx context.Context, options *BranchOptions, messager eventer.Messager)
+	BranchList(options *BranchOptions, messager eventer.Messager)
 
 	// Checkout a specific branch in the given repository path.
 	Checkout(o *CheckoutOptions, messager eventer.Messager)
 
 	// Pull the latest changes from the remote repository.
-	Pull(ctx context.Context, o *PullOptions, messager eventer.Messager)
+	Pull(o *PullOptions, messager eventer.Messager)
 }
 
 type gitClient struct {

@@ -149,15 +149,21 @@ func (es *eventServe) WithMessage(eventType, userId, projectId string, finishFun
 }
 
 func (es *eventServe) broadcast(channel chan MessageBody, eventType string, eventChan chan ServerSentEvent, finishFunc func()) {
+	receiveError := false
 	for {
 		msg, ok := <-channel
 		if !ok {
 			logger.Debugf("[%s] Channel closed for user", eventType)
-			if finishFunc != nil {
+			if !receiveError && finishFunc != nil {
 				finishFunc()
+			}
+			if receiveError {
+				logger.Warnf("[%s] Command with error", eventType)
 			}
 			return
 		}
+
+		receiveError = receiveError || (msg.Status == StatusError)
 
 		data, err := utils.Stringify(msg)
 		if err != nil {
