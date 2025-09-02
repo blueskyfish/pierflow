@@ -61,11 +61,11 @@ type Branch struct {
 	Active bool
 }
 
-func (g *gitClient) BranchList(ctx context.Context, options *BranchOptions, messager eventer.Messager) {
-	go g.runBranchList(ctx, options, messager)
+func (g *gitClient) BranchList(options *BranchOptions, messager eventer.Messager) {
+	go g.runBranchList(options, messager)
 }
 
-func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, messager eventer.Messager) {
+func (g *gitClient) runBranchList(o *BranchOptions, messager eventer.Messager) {
 	// close the messager channel when the function exits
 	defer messager.Close()
 
@@ -87,7 +87,7 @@ func (g *gitClient) runBranchList(ctx context.Context, o *BranchOptions, message
 	}
 
 	if o.Refresh {
-		err = repo.FetchContext(ctx, &git.FetchOptions{
+		err = repo.FetchContext(context.Background(), &git.FetchOptions{
 			Force: true,
 			Auth: &http.BasicAuth{
 				Username: o.User,

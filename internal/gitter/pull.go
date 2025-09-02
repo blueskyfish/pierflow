@@ -18,11 +18,11 @@ type PullOptions struct {
 	Path   string
 }
 
-func (g *gitClient) Pull(ctx context.Context, o *PullOptions, messager eventer.Messager) {
-	go g.runPull(ctx, o, messager)
+func (g *gitClient) Pull(o *PullOptions, messager eventer.Messager) {
+	go g.runPull(o, messager)
 }
 
-func (g *gitClient) runPull(ctx context.Context, o *PullOptions, messager eventer.Messager) {
+func (g *gitClient) runPull(o *PullOptions, messager eventer.Messager) {
 	// close the messager channel when the function exits
 	defer messager.Close()
 
@@ -59,7 +59,7 @@ func (g *gitClient) runPull(ctx context.Context, o *PullOptions, messager evente
 	}
 
 	// Pull the latest changes
-	err = worktree.PullContext(ctx, &git.PullOptions{
+	err = worktree.PullContext(context.Background(), &git.PullOptions{
 		Auth:          &http.BasicAuth{Username: o.User, Password: o.Token},
 		RemoteName:    git.DefaultRemoteName,
 		ReferenceName: head,

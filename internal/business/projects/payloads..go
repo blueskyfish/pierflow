@@ -5,6 +5,8 @@ type CreatePayload struct {
 	Description string `json:"description"`
 	Path        string `json:"path" validate:"required"`
 	GitUrl      string `json:"giturl" validate:"required,url"`
+	User        string `json:"user" validate:"required"`
+	Token       string `json:"token" validate:"required"`
 }
 
 type CommandPayload struct {

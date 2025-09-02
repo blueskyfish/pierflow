@@ -32,7 +32,7 @@ func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, &ErrorResponse{Message: "DbProject payload is invalid"})
 	}
-	now := time.Now()
+	now := time.Now().UTC()
 
 	project := DbProject{
 		ID:          "",
@@ -41,8 +41,10 @@ func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 		GitUrl:      payload.GitUrl,
 		Path:        payload.Path,
 		Branch:      "",
-		Creation:    now.UTC().Unix(),
-		Modified:    now.UTC().Unix(),
+		User:        payload.User,
+		Token:       payload.Token,
+		Creation:    now.Unix(),
+		Modified:    now.Unix(),
 		Status:      StatusCreated,
 	}
 

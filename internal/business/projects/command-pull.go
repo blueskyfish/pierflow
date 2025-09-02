@@ -39,7 +39,7 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 		GitUrl: project.GitUrl,
 		Path:   project.Path,
 	}
-	pm.gitClient.Pull(ctx.Request().Context(), &options, messager)
+	pm.gitClient.Pull(&options, messager)
 
 	return ctx.String(http.StatusNoContent, "")
 }
