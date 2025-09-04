@@ -30,12 +30,10 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 	// build the branch options
 	options := gitter.BranchOptions{
 		Refresh: refresh,
-	}
-	if refresh {
-		options.User = project.User
-		options.Token = project.Token
-		options.Prune = true
-		options.Path = project.Path
+		Prune:   true,
+		Path:    project.Path,
+		User:    project.User,
+		Token:   project.Token,
 	}
 
 	messager := pm.eventServe.WithMessage(CommandBranchList.Message(), userId, project.ID, nil)
