@@ -55,10 +55,9 @@ func StringBranchPlace(s string) (BranchPlace, error) {
 }
 
 type Branch struct {
-	Branch string
-	Place  BranchPlace
-	Path   string
-	Active bool
+	Branch string      `json:"branch"`
+	Place  BranchPlace `json:"place"`
+	Active bool        `json:"active"`
 }
 
 func (g *gitClient) BranchList(options *BranchOptions, messager eventer.Messager) {
