@@ -1,3 +1,5 @@
+import type { BranchDto } from '../fetching';
+
 export enum ProjectCommand {
   CreateProject = 'create-project',
   CheckoutRepository = 'checkout-repository',
@@ -7,6 +9,9 @@ export enum ProjectCommand {
   StartProject = 'start-project',
   StopProject = 'stop-project',
   DeleteProject = 'delete-project',
+
+  BranchList = 'branch-list',
+  TaskList = 'task-list',
 }
 
 export interface ProjectDto {
@@ -21,4 +26,9 @@ export interface ProjectDto {
   modified: string;
   status: string;
   commandMap: Record<ProjectCommand, boolean>;
+
+  /**
+   * Optional the list of branches for the project repository
+   */
+  branchList?: BranchDto[];
 }

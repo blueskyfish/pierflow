@@ -1,10 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { ServerEvent } from './events.models.ts';
 
 export type EventStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
 export interface EventState {
   status: EventStatus;
-  messages: string[];
+  messages: ServerEvent[];
   error: string | null;
 }
 
@@ -26,7 +27,7 @@ const eventStore = createSlice({
     updateStatus: (state, action) => {
       state.status = action.payload;
     },
-    addMessage: (state, action) => {
+    addMessage: (state, action: PayloadAction<ServerEvent>) => {
       state.messages.push(action.payload);
     },
     setError: (state, action) => {
