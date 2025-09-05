@@ -1,12 +1,12 @@
+import type { ProjectDto } from '@blueskyfish/pierflow/stores';
 import axios from 'axios';
-import type { ProjectDto } from './project.models.ts';
+import { fetchingHeaders } from './fetch-user';
 
-export const fetchProjectList = async (userId: string): Promise<ProjectDto[]> => {
+export const fetchProjectList = async (): Promise<ProjectDto[]> => {
   const options = {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
-      'x-pierflow-user': userId,
+      ...fetchingHeaders,
     },
     url: '/api/projects',
   };
