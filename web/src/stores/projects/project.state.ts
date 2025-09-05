@@ -1,8 +1,6 @@
+import { type BranchDto, fetchProjectList, type ProjectDto } from '@blueskyfish/pierflow/api';
 import { createSlice, type MiddlewareAPI, type PayloadAction } from '@reduxjs/toolkit';
 import { loadProjectList } from './project.actions.ts';
-import { type ProjectDto } from './project.models.ts';
-import type { BranchDto } from '../fetching';
-import { fetchProjectList } from '../fetching';
 
 export const ProjectFeatureKey = 'projects';
 

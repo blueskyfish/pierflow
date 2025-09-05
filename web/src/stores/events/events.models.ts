@@ -13,7 +13,7 @@ export interface ServerEvent {
   status: EventStatus;
 
   /**
-   * Event message or Json serialized object
+   * Event message or JSON serialized object
    */
   message: string;
 
