@@ -1,7 +1,8 @@
 import { createSlice, type MiddlewareAPI, type PayloadAction } from '@reduxjs/toolkit';
 import { loadProjectList } from './project.actions.ts';
 import { fetchProjectList } from './project.backend.ts';
-import type { ProjectDto } from './project.models.ts';
+import { type ProjectDto } from './project.models.ts';
+import type { BranchDto } from '../fetching';
 
 export const ProjectFeatureKey = 'projects';
 
@@ -44,10 +45,27 @@ export const projectSlice = createSlice({
         map,
       };
     },
+    updateBranchList: (state: ProjectState, action: PayloadAction<{ projectId: string; branchList: BranchDto[] }>) => {
+      const { projectId, branchList } = action.payload;
+      let project = state.map[projectId];
+      if (project) {
+        project = {
+          ...project,
+          branchList,
+        };
+      }
+      return {
+        ...state,
+        map: {
+          ...state.map,
+          [projectId]: project,
+        },
+      };
+    },
   },
 });
 
-export const { updateUserId, updateSelectedId, updateProjectList } = projectSlice.actions;
+export const { updateUserId, updateSelectedId, updateProjectList, updateBranchList } = projectSlice.actions;
 export const projectReducer = projectSlice.reducer;
 
 /**

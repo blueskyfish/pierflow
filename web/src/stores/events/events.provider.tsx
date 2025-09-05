@@ -2,6 +2,7 @@ import { useAppDispatch } from '@blueskyfish/pierflow/stores';
 import * as React from 'react';
 import { createContext, type PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { addMessage, setError, updateStatus } from './events.slice';
+import { type ServerEvent } from './events.models.ts';
 
 const PROJECT_CONNECT_PATH = '/api/projects/connect/{userId}';
 
@@ -9,7 +10,8 @@ export interface EventsContextValue {
   eventSource: EventSource | null;
 }
 
-const EventsContext = createContext<EventsContextValue | undefined>(undefined);
+// eslint-disable-next-line react-refresh/only-export-components
+export const EventsContext = createContext<EventsContextValue | undefined>(undefined);
 
 /**
  * Provider component to manage and provide EventSource connection via context.
@@ -49,7 +51,7 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
         const es = new EventSource(PROJECT_CONNECT_PATH.replace('{userId}', encodeURIComponent(userRef.current)));
         es.onopen = () => {
           dispatch(updateStatus('connected'));
-          console.log('SSE connected.');
+          dispatch(setError(null));
         };
         es.onerror = (error) => {
           console.error('EventSource failed:', error);
@@ -64,8 +66,8 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
         };
 
         es.addEventListener('message', (event) => {
-          console.log('Received message:', event.data);
-          dispatch(addMessage(event.data));
+          const sEvent = JSON.parse(event.data) as ServerEvent;
+          dispatch(addMessage(sEvent));
         });
 
         es.addEventListener('heartbeat', (event) => {
