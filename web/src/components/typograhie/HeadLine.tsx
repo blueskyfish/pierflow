@@ -8,6 +8,7 @@ export interface HeadLineProps {
   className?: string;
   title: string;
   icon?: string;
+  loading?: boolean;
 }
 
 const Caption: React.FC<PropsWithChildren<{ as: HeadAs; className: string }>> = ({ as, className, children }) => {
@@ -29,11 +30,14 @@ const Caption: React.FC<PropsWithChildren<{ as: HeadAs; className: string }>> = 
   }
 };
 
-export const HeadLine: React.FC<HeadLineProps> = ({ as, icon, title, className }) => {
+export const HeadLine: React.FC<HeadLineProps> = ({ as, icon, title, loading, className }) => {
   return (
     <Caption as={as ?? 'h2'} className={className ?? 'mb-2'}>
       {icon && <span className={`app-icon ${icon} mr-2 flex-shrink-1`}></span>}
       <span className='app-title flex-grow-1 text-truncate'>{title}</span>
+      <span className={'app-loading flex-shrink-1 w-6'}>
+        {loading && <span className={'loading loading-sm'}></span>}
+      </span>
     </Caption>
   );
 };

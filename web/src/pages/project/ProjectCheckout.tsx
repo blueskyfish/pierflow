@@ -11,7 +11,7 @@ import {
 } from '@blueskyfish/pierflow/stores';
 import { HeadLine } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { type BranchDto, fetchBranchList, type ProjectDto } from '@blueskyfish/pierflow/api';
 
 export interface CheckoutProps {
@@ -19,16 +19,14 @@ export interface CheckoutProps {
 }
 
 export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
-  const [refresh, setRefresh] = React.useState<boolean>(false);
+  const [refresh, setRefresh] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
 
   // load the branch list if not already loaded
   const loadBranchList = React.useCallback(() => {
-    if (Array.isArray(project.branchList)) {
-      return;
-    }
-
+    setLoading(true);
     const removeListener = addEventMessager(
       eventSource,
       toEventType(ProjectCommand.BranchList),
@@ -41,11 +39,13 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
               dispatch(updateBranchList({ projectId: project.id, branchList }));
             }
             removeListener();
+            setLoading(false);
             return;
           case EventStatus.Error:
             dispatch(updateBranchList({ projectId: project.id, branchList: [] }));
             dispatch(addMessage(event));
             removeListener();
+            setLoading(false);
             return;
           default:
             dispatch(addMessage(event));
@@ -61,22 +61,59 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
   }, [dispatch, eventSource, project, refresh]);
 
   useEffect(() => {
+    if (Array.isArray(project.branchList)) {
+      return;
+    }
     const removeListener = loadBranchList();
     return () => {
       if (removeListener) removeListener();
     };
-  }, [loadBranchList]);
+  }, [loadBranchList, project.branchList]);
 
   // Callback für Reload
   const handleReload = () => {
-    setRefresh((prev) => !prev);
     loadBranchList();
+  };
+
+  const handleRefreshChange = () => {
+    setRefresh(!refresh);
   };
 
   return (
     <>
-      <HeadLine title={`Checkout ${project!.name}`} as={'h2'} icon={'mdi mdi-factory'} className={'mb-4'} />
-      <button onClick={handleReload}>Reload</button>
+      <HeadLine
+        title={`Checkout ${project!.name}`}
+        as={'h2'}
+        icon={'mdi mdi-factory'}
+        className={'mb-4'}
+        loading={loading}
+      />
+      <ul className={'menu menu-horizontal rounded-box mb-4'}>
+        <li>
+          <button
+            className={'tooltip'}
+            data-tip='Reload the list of branches'
+            disabled={loading}
+            onClick={handleReload}
+          >
+            <span className={'mdi mdi-refresh'} />
+            Refresh
+          </button>
+        </li>
+        <li>
+          <button
+            className={'tooltip'}
+            disabled={loading}
+            data-tip='Force refresh from remote repository'
+            onClick={handleRefreshChange}
+          >
+            <span
+              className={`mdi ${refresh ? 'mdi-checkbox-marked-circle-outline' : 'mdi-checkbox-blank-circle-outline'}`}
+            />
+            Remote
+          </button>
+        </li>
+      </ul>
       <ul>
         {project.branchList && project.branchList.map((item: BranchDto) => <li key={item.branch}>{item.branch}</li>)}
       </ul>
