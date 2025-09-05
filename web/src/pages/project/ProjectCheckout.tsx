@@ -13,6 +13,7 @@ import { HeadLine } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { type BranchDto, fetchBranchList, type ProjectDto } from '@blueskyfish/pierflow/api';
+import { ProjectMessage } from './ProjectMessage.tsx';
 
 export interface CheckoutProps {
   project: ProjectDto;
@@ -80,15 +81,15 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
   };
 
   return (
-    <>
+    <div className={'flex flex-col items-stretch h-full'}>
       <HeadLine
         title={`Checkout ${project!.name}`}
         as={'h2'}
         icon={'mdi mdi-factory'}
-        className={'mb-4'}
+        className={'mb-4 flex-shrink-1'}
         loading={loading}
       />
-      <ul className={'menu menu-horizontal rounded-box mb-4'}>
+      <ul className={'menu menu-horizontal rounded-box mb-4 flex-shrink-1'}>
         <li>
           <button
             className={'tooltip'}
@@ -114,9 +115,10 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
           </button>
         </li>
       </ul>
-      <ul>
+      <ul className={'flex-grow-1 overflow-auto'}>
         {project.branchList && project.branchList.map((item: BranchDto) => <li key={item.branch}>{item.branch}</li>)}
       </ul>
-    </>
+      <ProjectMessage filterId={project.id} />
+    </div>
   );
 };
