@@ -3,6 +3,7 @@ package gitter
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"pierflow/internal/eventer"
 	"pierflow/internal/logger"
@@ -140,6 +141,8 @@ func (g *gitClient) runBranchList(o *BranchOptions, messager eventer.Messager) {
 		messager.Send(eventer.StatusInfo, "Repository empty branches")
 		return
 	}
+
+	messager.Send(eventer.StatusInfo, fmt.Sprintf("Found %d branches", len(list)))
 
 	messager.Send(eventer.StatusSuccess, list)
 }
