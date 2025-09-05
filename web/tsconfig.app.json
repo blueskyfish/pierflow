@@ -23,6 +23,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
+      "@blueskyfish/pierflow/api": [
+        "./src/api/index.ts"
+      ],
       "@blueskyfish/pierflow/app": [
         "./src/app/index.ts"
       ],

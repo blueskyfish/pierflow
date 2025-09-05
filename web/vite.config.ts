@@ -20,6 +20,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@blueskyfish/pierflow/api': resolve('src/api'),
       '@blueskyfish/pierflow/app': resolve('src/app'),
       '@blueskyfish/pierflow/components': resolve('src/components'),
       '@blueskyfish/pierflow/pages': resolve('src/pages'),

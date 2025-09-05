@@ -1,12 +1,6 @@
 import axios from 'axios';
 import { fetchingHeaders } from './fetch-user.ts';
 
-export interface BranchDto {
-  branch: string;
-  place: string;
-  active: boolean;
-}
-
 export const fetchBranchList = async (projectId: string, refresh: boolean = false): Promise<void> => {
   const url = refresh ? `/api/projects/${projectId}/branches?refresh=true` : `/api/projects/${projectId}/branches`;
   const options = {
