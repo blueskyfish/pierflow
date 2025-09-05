@@ -1,29 +1,30 @@
 import {
+  addEventMessager,
   addMessage,
+  EventStatus,
   ProjectCommand,
-  type ProjectDto,
+  type ServerEvent,
+  toEventType,
   updateBranchList,
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
-import { HeadLine } from './typograhie';
+import { HeadLine } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { type BranchDto, fetchBranchList } from '../stores/fetching';
-import { addEventMessager, toEventType } from '../stores/events/events.messager.ts';
-import { EventStatus, type ServerEvent } from '../stores/events/events.models.ts';
+import { type BranchDto, fetchBranchList, type ProjectDto } from '@blueskyfish/pierflow/api';
 
 export interface CheckoutProps {
   project: ProjectDto;
 }
 
-export const Checkout: React.FC<CheckoutProps> = ({ project }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [refresh, _] = React.useState<boolean>(false);
+export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
+  const [refresh, setRefresh] = React.useState<boolean>(false);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
 
-  useEffect(() => {
+  // load the branch list if not already loaded
+  const loadBranchList = React.useCallback(() => {
     if (Array.isArray(project.branchList)) {
       return;
     }
@@ -53,15 +54,29 @@ export const Checkout: React.FC<CheckoutProps> = ({ project }) => {
       }, // end of event handler
     );
 
+    // start to fetch the branch list. The branch list will be delivered via server side events
     fetchBranchList(project.id, refresh).catch(() => removeListener());
 
-    return () => {
-      removeListener();
-    };
+    return removeListener;
   }, [dispatch, eventSource, project, refresh]);
+
+  useEffect(() => {
+    const removeListener = loadBranchList();
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [loadBranchList]);
+
+  // Callback für Reload
+  const handleReload = () => {
+    setRefresh((prev) => !prev);
+    loadBranchList();
+  };
+
   return (
     <>
       <HeadLine title={`Checkout ${project!.name}`} as={'h2'} icon={'mdi mdi-factory'} className={'mb-4'} />
+      <button onClick={handleReload}>Reload</button>
       <ul>
         {project.branchList && project.branchList.map((item: BranchDto) => <li key={item.branch}>{item.branch}</li>)}
       </ul>

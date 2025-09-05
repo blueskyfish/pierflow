@@ -1,10 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { ServerEvent } from './events.models.ts';
 
-export type EventStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+export type EventConnectStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
 export interface EventState {
-  status: EventStatus;
+  status: EventConnectStatus;
   messages: ServerEvent[];
   error: string | null;
 }
