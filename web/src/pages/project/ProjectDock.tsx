@@ -4,12 +4,12 @@ import * as React from 'react';
 import { Link, useNavigate } from 'react-router';
 
 export interface ProjectDockProps {
-  commandMap: Record<ProjectCommand, boolean>;
+  commandMap: Record<string, boolean>;
   selectKey: string;
   projectId: string;
 }
 
-const ProjectDockMaps: Record<ProjectCommand, { icon: string; label: string; pageKey: ProjectPath }> = {
+const ProjectDockMaps: Record<string, { icon: string; label: string; pageKey: ProjectPath }> = {
   [ProjectCommand.CloneRepository]: { icon: 'mdi mdi-store-plus-outline', label: 'Clone', pageKey: ProjectPath.Clone },
   [ProjectCommand.CheckoutRepository]: {
     icon: 'mdi mdi-store-check-outline',
