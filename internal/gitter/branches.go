@@ -56,9 +56,9 @@ func StringBranchPlace(s string) (BranchPlace, error) {
 }
 
 type Branch struct {
-	Branch string      `json:"branch"`
-	Place  BranchPlace `json:"place"`
-	Active bool        `json:"active"`
+	Branch string `json:"branch"`
+	Place  string `json:"place"`
+	Active bool   `json:"active"`
 }
 
 func (g *gitClient) BranchList(options *BranchOptions, messager eventer.Messager) {
@@ -124,13 +124,13 @@ func (g *gitClient) runBranchList(o *BranchOptions, messager eventer.Messager) {
 		if ref.Name().IsBranch() {
 			list = append(list, Branch{
 				Branch: ref.Name().Short(),
-				Place:  BranchPlaceLocal,
+				Place:  BranchPlaceLocal.String(),
 				Active: ref.Name().Short() == currentBranch,
 			})
 		} else if ref.Name().IsRemote() {
 			list = append(list, Branch{
 				Branch: ref.Name().Short(),
-				Place:  BranchPlaceRemote,
+				Place:  BranchPlaceRemote.String(),
 				Active: ref.Name().Short() == currentBranch,
 			})
 		}

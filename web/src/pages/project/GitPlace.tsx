@@ -2,15 +2,15 @@ import * as React from 'react';
 import { useMemo } from 'react';
 
 export interface GitPlaceProps {
-  place: number;
+  place: string;
 }
 
 export const GitPlace: React.FC<GitPlaceProps> = ({ place }) => {
   const placeText = useMemo(() => {
     switch (place) {
-      case 1:
+      case 'remote':
         return 'Remote';
-      case 0:
+      case 'local':
         return 'Local';
       default:
         return 'Unknown';

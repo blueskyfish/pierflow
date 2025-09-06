@@ -9,7 +9,7 @@ import (
 func toBranch(b plumbing.ReferenceName, active bool) *Branch {
 	return &Branch{
 		Branch: b.Short(),
-		Place:  helper.IIF(b.IsBranch(), BranchPlaceLocal, BranchPlaceRemote),
+		Place:  helper.IIF(b.IsBranch(), BranchPlaceLocal.String(), BranchPlaceRemote.String()),
 		Active: active,
 	}
 }
