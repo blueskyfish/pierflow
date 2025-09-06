@@ -35,9 +35,15 @@ export const ProjectMessage: React.FC<ProjectMessageProps> = ({ filterId }) => {
   return (
     <div className={'overflow-x-auto !h-48 bg-base-200 mb-13 border-t border-t-solid border-t-base-300'}>
       <table className={'table table-xs table-zebra table-pin-rows'}>
+        <colgroup>
+          <col width={'5%'} />
+          <col width={'10%'} />
+          <col width={'*'} />
+          <col width={'20%'} />
+        </colgroup>
         <thead>
           <tr className={'bg-base-200'}>
-            <th>No</th>
+            <th className={'text-right'}>No</th>
             <th>
               <div className={'text-center'}>Status</div>
             </th>
@@ -54,7 +60,7 @@ export const ProjectMessage: React.FC<ProjectMessageProps> = ({ filterId }) => {
           {hasMessages &&
             filteredMessageList.map((message, index, list) => (
               <tr key={index}>
-                <td>{messageOffset + (list.length - index)}</td>
+                <td className={'text-right'}>{messageOffset + (list.length - index)}</td>
                 <td>
                   <MessageLabel status={message.status} />
                 </td>
