@@ -1,6 +1,6 @@
 export interface BranchDto {
   branch: string;
-  place: number;
+  place: string;
   active: boolean;
 }
 
@@ -21,4 +21,10 @@ export interface ProjectDto {
    * Optional the list of branches for the project repository
    */
   branchList?: BranchDto[];
+}
+
+export interface CheckoutPayload {
+  branch: string;
+  place: string;
+  message: string;
 }

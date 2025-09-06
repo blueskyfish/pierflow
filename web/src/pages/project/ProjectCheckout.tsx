@@ -6,13 +6,14 @@ import {
   type ServerEvent,
   toEventType,
   updateBranchList,
+  updateProjectBranch,
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
 import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { type BranchDto, fetchBranchList, type ProjectDto } from '@blueskyfish/pierflow/api';
+import { useCallback, useEffect, useState } from 'react';
+import { type BranchDto, fetchBranchList, fetchCheckoutBranch, type ProjectDto } from '@blueskyfish/pierflow/api';
 import { GitPlace } from './GitPlace.tsx';
 
 export interface CheckoutProps {
@@ -60,6 +61,46 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
 
     return removeListener;
   }, [dispatch, eventSource, project, refresh]);
+
+  const checkoutBranchRepositor = useCallback(
+    (branch: string, place: string) => {
+      setLoading(true);
+      const removeListener = addEventMessager(
+        eventSource,
+        toEventType(ProjectCommand.CheckoutRepository),
+        (event: ServerEvent) => {
+          switch (event.status) {
+            case EventStatus.Success:
+              console.log('> CheckoutRepository event:', event);
+              if (event.id === project.id && event.message) {
+                const { branch } = JSON.parse(event.message) as { branch: string };
+                dispatch(updateProjectBranch({ projectId: project.id, branch }));
+              }
+              removeListener();
+              setLoading(false);
+              return;
+            case EventStatus.Error:
+              dispatch(addMessage(event));
+              removeListener();
+              setLoading(false);
+              return;
+            default:
+              dispatch(addMessage(event));
+              return;
+          }
+        }, // end of event handler
+      );
+
+      // start to check out the branch. The result will be delivered via server side events
+      fetchCheckoutBranch(project.id, { branch, place, message: 'TODO' }).catch(() => removeListener());
+
+      return () => {
+        setLoading(false);
+        if (removeListener) removeListener();
+      };
+    },
+    [dispatch, eventSource, project.id],
+  );
 
   useEffect(() => {
     if (Array.isArray(project.branchList)) {
@@ -118,33 +159,51 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
       <ScrollBar direction={ScrollingDirection.Vertical} className={'p-3 flex-grow-1'}>
         <div className={'overflow-auto'}>
           <table className={'table table-sm'}>
-            {project.branchList &&
-              project.branchList.map((item: BranchDto) => {
-                return (
-                  <tr className={`${item.active ? 'bg-primary text-white' : ''}`} key={item.branch}>
-                    <td>{item.branch}</td>
-                    <td>
-                      <GitPlace place={item.place} />
-                    </td>
-                    <td>
-                      {item.active && (
-                        <>
-                          <span className={'mdi mdi-check mr-3'} />
-                          Active
-                        </>
-                      )}
-                      {!item.active && (
-                        <>
-                          <button className={'btn btn-soft btn-secondary btn-sm'} type={'button'}>
-                            Checkout
-                            <span className={'ml-1 mdi mdi-chevron-right'}></span>
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+            <colgroup>
+              <col width={'*'} />
+              <col width={'10%'} />
+              <col width={'15%'} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Branch</th>
+                <th className={'text-center'}>Place</th>
+                <th>&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              {project.branchList &&
+                project.branchList.map((item: BranchDto) => {
+                  return (
+                    <tr className={`${item.active ? 'bg-primary text-white' : 'hover:bg-base-300'}`} key={item.branch}>
+                      <td>{item.branch}</td>
+                      <td>
+                        <GitPlace place={item.place} />
+                      </td>
+                      <td>
+                        {item.active && (
+                          <>
+                            <span className={'mdi mdi-check mr-3'} />
+                            Active
+                          </>
+                        )}
+                        {!item.active && (
+                          <>
+                            <button
+                              type={'button'}
+                              className={'btn btn-xs btn-soft btn-secondary btn-sm'}
+                              onClick={() => checkoutBranchRepositor(item.branch, item.place)}
+                            >
+                              Checkout
+                              <span className={'ml-1 mdi mdi-chevron-right'}></span>
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
           </table>
         </div>
       </ScrollBar>
