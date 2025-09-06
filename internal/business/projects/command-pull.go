@@ -27,14 +27,15 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 	}
 
 	messager := pm.eventServe.WithMessage(CommandPullRepository.Message(), userId, project.ID, func(data interface{}) {
-		branch, ok := data.(gitter.Branch)
-		if !ok {
-			logger.Errorf("Failed to get branch from data: %v", data)
+		var result gitter.Branch
+		err := utils.CovertTo(data, &result)
+		if err != nil {
+			logger.Errorf("Pull the project %s failed: %v", project.Name, err)
 			return
 		}
-		logger.Infof("[%s] finished with branch %s", project.Name, branch.Branch)
+		logger.Infof("[%s] finished with branch %s", project.Name, result.Branch)
 		// update the project branch and status
-		if err := pm.updateProjectWith(project, StatusPulled, branch.Branch); err != nil {
+		if err := pm.updateProjectWith(project, StatusPulled, result.Branch); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusPulled, err.Error())
 		}
 	})

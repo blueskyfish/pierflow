@@ -11,7 +11,7 @@ type DbProject struct {
 	Description string        `json:"description"`
 	Path        string        `json:"path" gorm:"not null"`
 	GitUrl      string        `json:"gitUrl" gorm:"not null"`
-	Branch      string        `json:"branch"`
+	Branch      string        `json:"branch" gorm:"default:''"`
 	User        string        `json:"user" gorm:"not null"`
 	Token       string        `json:"token" gorm:"not null"`
 	Creation    int64         `json:"creation" gorm:"autoCreateTime"`

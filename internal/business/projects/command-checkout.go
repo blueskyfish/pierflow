@@ -70,12 +70,13 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)
 
 	messager := pm.eventServe.WithMessage(CommandCheckoutRepository.Message(), userId, project.ID, func(data interface{}) {
-		branch, ok := data.(gitter.Branch)
-		if !ok {
-			logger.Warnf("Invalid branch data after checkout for project '%s'", project.Name)
+		var result gitter.Branch
+		err := utils.CovertTo(data, &result)
+		if err != nil {
+			logger.Warnf("Invalid branch data after checkout for project '%s' => %v", project.Name, err)
 			return
 		}
-		if err := pm.updateProjectWith(project, StatusCheckedOut, branch.Branch); err != nil {
+		if err = pm.updateProjectWith(project, StatusCheckedOut, result.Branch); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCheckedOut, err.Error())
 		}
 	})
