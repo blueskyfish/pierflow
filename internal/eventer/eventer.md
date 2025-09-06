@@ -1,6 +1,17 @@
 
 # Pierflow Eventer
 
+## Messaging System and Status
+
+The messager inside contains a messaging system that allows sending messages with different statuses. The statuses are
+defined as constants.
+
+* StatusDebug
+* StatusInfo
+* StatusWarn
+* StatusError
+* **StatusSuccess** this is special as they are only sent once the command is finished and it send the result.
+
 ## Usage
 
 ```go
@@ -8,14 +19,22 @@ package projects
 
 import (
 	"pierflow/internal/business/projects"
+	"pierflow/internal/business/utils"
 	"pierflow/internal/eventer"
+
+	"github.com/labstack/echo/v4"
 )
 
-func (pm *ProjectManager) ACommand() {
+func (pm *ProjectManager) ACommand(ctx echo.Context) {
+	userId := utils.HeaderUser(ctx)
+	projectId := ctx.Param("id")
 	var messager = pm.eventServe.WithMessage(
 		projects.CommandBuildProject.Message(),
 		userId,
 		projectId,
+		func(data interface{}) {
+			// do something with data
+		},
 	)
 
 	err := messager.Send(eventer.StatusSuccess, projectId, toHead(head))
