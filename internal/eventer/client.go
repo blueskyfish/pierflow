@@ -47,7 +47,7 @@ type EventServe interface {
 	//
 	// The Messager method is called in the producer goroutine to create a new message channel for sending messages.
 	// It returns a Messager instance that can be used to send messages to the client.
-	WithMessage(eventType, userId, projectId string, finishFunc func()) Messager
+	WithMessage(eventType, userId, projectId string, finishFunc func(data interface{})) Messager
 }
 
 func NewEventServe() EventServe {

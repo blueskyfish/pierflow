@@ -1,6 +1,7 @@
 package eventer
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -126,7 +127,7 @@ func (es *eventServe) Listen(ctx echo.Context) error {
 	}
 }
 
-func (es *eventServe) WithMessage(eventType, userId, projectId string, finishFunc func()) Messager {
+func (es *eventServe) WithMessage(eventType, userId, projectId string, finishFunc func(data interface{})) Messager {
 	if eventType == "" {
 		eventType = "message"
 	}
@@ -148,15 +149,15 @@ func (es *eventServe) WithMessage(eventType, userId, projectId string, finishFun
 	}
 }
 
-func (es *eventServe) broadcast(channel chan MessageBody, eventType string, eventChan chan ServerSentEvent, finishFunc func()) {
+func (es *eventServe) broadcast(channel chan MessageBody, eventType string, eventChan chan ServerSentEvent, finishFunc func(data interface{})) {
 	receiveError := false
+	if finishFunc == nil {
+		finishFunc = func(data interface{}) { logger.Infof("[%s] DUMMY!!: Broadcast finished with %s", eventType, data) }
+	}
 	for {
 		msg, ok := <-channel
 		if !ok {
 			logger.Debugf("[%s] Channel closed for user", eventType)
-			if !receiveError && finishFunc != nil {
-				finishFunc()
-			}
 			if receiveError {
 				logger.Warnf("[%s] Command with error", eventType)
 			}
@@ -164,6 +165,17 @@ func (es *eventServe) broadcast(channel chan MessageBody, eventType string, even
 		}
 
 		receiveError = receiveError || (msg.Status == StatusError)
+
+		if msg.Status == StatusSuccess && !receiveError {
+			var data interface{}
+			err := json.Unmarshal([]byte(msg.Message), &data)
+			if err != nil {
+				finishFunc(msg.Message)
+			} else {
+				finishFunc(data)
+			}
+
+		}
 
 		data, err := utils.Stringify(msg)
 		if err != nil {

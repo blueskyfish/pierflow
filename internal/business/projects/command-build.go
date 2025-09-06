@@ -27,11 +27,15 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 		logger.Infof("Build project '%s' with force", project.Name)
 	}
 
-	messager := pm.eventServe.WithMessage(CommandBuildProject.Message(), userId, project.ID, func() {
-		if err := pm.updateProjectStatus(project, StatusBuilt); err != nil {
-			logger.Errorf("Failed to update project status to '%s': %s", StatusBuilt, err.Error())
+	messager := pm.eventServe.WithMessage(CommandBuildProject.Message(), userId, project.ID, func(data interface{}) {
+		logger.Infof("[%s] finished with %s", project.Name, data.(string))
+		if pErr := pm.updateProjectStatus(project, StatusBuilt); pErr != nil {
+			logger.Errorf("Failed to update project status to '%s': %s", StatusBuilt, pErr.Error())
 		}
 	})
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+	}
 
 	// Build the project
 	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameBuild, messager)

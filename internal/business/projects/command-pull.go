@@ -26,11 +26,21 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
-	messager := pm.eventServe.WithMessage(CommandPullRepository.Message(), userId, project.ID, func() {
-		if err := pm.updateProjectStatus(project, StatusPulled); err != nil {
+	messager := pm.eventServe.WithMessage(CommandPullRepository.Message(), userId, project.ID, func(data interface{}) {
+		branch, ok := data.(gitter.Branch)
+		if !ok {
+			logger.Errorf("Failed to get branch from data: %v", data)
+			return
+		}
+		logger.Infof("[%s] finished with branch %s", project.Name, branch.Branch)
+		// update the project branch and status
+		if err := pm.updateProjectWith(project, StatusPulled, branch.Branch); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusPulled, err.Error())
 		}
 	})
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+	}
 
 	// pull the repository
 	options := gitter.PullOptions{
