@@ -24,7 +24,7 @@ export const ProjectListPage: React.FC = () => {
 
   return (
     <div className={'flex flex-col align-items-stretch height-100 overflow-auto p-3'}>
-      <HeadLine as={'h2'} title={'Project Overview'} icon={'mdi mdi-list-box-outline'} className={'mb-4'} />
+      <HeadLine as={'h2'} title={'Project Overview'} icon={'mdi mdi-list-box-outline'} className={'mb-4 px-3 pt-3'} />
       {isEmpty && (
         <div className={'alert alert-warning w-full'}>
           <Paragraph>Leider kein Projekt definiert.</Paragraph>

@@ -9,11 +9,11 @@ import {
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
-import { HeadLine } from '@blueskyfish/pierflow/components';
+import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { type BranchDto, fetchBranchList, type ProjectDto } from '@blueskyfish/pierflow/api';
-import { ProjectMessage } from './ProjectMessage.tsx';
+import { GitPlace } from './GitPlace.tsx';
 
 export interface CheckoutProps {
   project: ProjectDto;
@@ -81,15 +81,15 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
   };
 
   return (
-    <div className={'flex flex-col items-stretch h-full'}>
+    <div className={'flex flex-col items-stretch h-full overflow-auto'}>
       <HeadLine
         title={`Checkout ${project!.name}`}
         as={'h2'}
         icon={'mdi mdi-factory'}
-        className={'mb-4 flex-shrink-1'}
+        className={'mb-4 flex-shrink-1 px-3 pt-3'}
         loading={loading}
       />
-      <ul className={'menu menu-horizontal rounded-box mb-4 flex-shrink-1'}>
+      <ul className={'menu menu-horizontal rounded-box mb-4 flex-shrink-1 border-t border-b border-gray-200 w-full'}>
         <li>
           <button
             className={'tooltip'}
@@ -115,10 +115,39 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
           </button>
         </li>
       </ul>
-      <ul className={'flex-grow-1 overflow-auto'}>
-        {project.branchList && project.branchList.map((item: BranchDto) => <li key={item.branch}>{item.branch}</li>)}
-      </ul>
-      <ProjectMessage filterId={project.id} />
+      <ScrollBar direction={ScrollingDirection.Vertical} className={'p-3 flex-grow-1'}>
+        <div className={'overflow-auto'}>
+          <table className={'table table-sm'}>
+            {project.branchList &&
+              project.branchList.map((item: BranchDto) => {
+                return (
+                  <tr className={`${item.active ? 'bg-primary text-white' : ''}`} key={item.branch}>
+                    <td>{item.branch}</td>
+                    <td>
+                      <GitPlace place={item.place} />
+                    </td>
+                    <td>
+                      {item.active && (
+                        <>
+                          <span className={'mdi mdi-check mr-3'} />
+                          Active
+                        </>
+                      )}
+                      {!item.active && (
+                        <>
+                          <button className={'btn btn-soft btn-secondary btn-sm'} type={'button'}>
+                            Checkout
+                            <span className={'ml-1 mdi mdi-chevron-right'}></span>
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+          </table>
+        </div>
+      </ScrollBar>
     </div>
   );
 };

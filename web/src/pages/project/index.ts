@@ -1,3 +1,4 @@
+export * from './GitPlace';
 export * from './MessageLabel';
 export * from './ProjectAllow';
 export * from './ProjectCard';

@@ -8,7 +8,7 @@ export const ProjectStopPage: React.FC = () => {
   const project = useAppSelector(selectSelectProject);
   return (
     <ProjectAllow command={ProjectCommand.StopProject} project={project} projectKey={ProjectPath.Stop}>
-      <HeadLine title={`Stop ${project!.name}`} as={'h2'} icon={`mdi mdi-factory`} className={'mb-4'} />
+      <HeadLine title={`Stop ${project!.name}`} as={'h2'} icon={`mdi mdi-factory`} className={'mb-4 px-3 pt-3'} />
     </ProjectAllow>
   );
 };

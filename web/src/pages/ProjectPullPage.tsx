@@ -8,7 +8,7 @@ export const ProjectPullPage: React.FC = () => {
   const project = useAppSelector(selectSelectProject);
   return (
     <ProjectAllow command={ProjectCommand.PullRepository} project={project} projectKey={ProjectPath.Pull}>
-      <HeadLine title={`Pull ${project!.name}`} as={'h2'} icon={'mdi mdi-factory'} className={'mb-4'} />
+      <HeadLine title={`Pull ${project!.name}`} as={'h2'} icon={'mdi mdi-factory'} className={'mb-4 px-3 pt-3'} />
     </ProjectAllow>
   );
 };
