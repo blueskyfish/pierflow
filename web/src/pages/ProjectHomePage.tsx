@@ -10,7 +10,7 @@ import {
 import * as React from 'react';
 import { useEffect } from 'react';
 import { Outlet, useParams } from 'react-router';
-import { ProjectDock } from './project';
+import { ProjectDock, ProjectMessage } from './project';
 
 export const ProjectHomePage: React.FC = () => {
   const projectId = useParams().projectId ?? null;
@@ -38,10 +38,11 @@ export const ProjectHomePage: React.FC = () => {
   }
 
   return (
-    <div className={'flex flex-col align-items-stretch height-100 overflow-auto p-3 relative'}>
-      <div className={'flex flex-col items-stretch flex-grow-1 overflow-auto mb-13'}>
+    <div className={'flex flex-col align-items-stretch height-100 overflow-auto relative'}>
+      <div className={'flex flex-col items-stretch flex-grow-1 overflow-auto'}>
         <Outlet />
       </div>
+      <ProjectMessage filterId={project.id} />
       <ProjectDock commandMap={project.commandMap} projectId={project.id} selectKey={selectKey} />
     </div>
   );

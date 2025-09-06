@@ -6,3 +6,4 @@ export * from './typograhie';
 export * from './LabelValue';
 export * from './MainContent';
 export * from './Panel';
+export * from './ScrollBar';

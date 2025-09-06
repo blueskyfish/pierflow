@@ -60,7 +60,9 @@ export const ProjectDock: React.FC<ProjectDockProps> = ({ commandMap, projectId,
   };
 
   return (
-    <div className={'dock dock-md absolute bg-base-200 text-base-200-content'}>
+    <div
+      className={'dock dock-md absolute bg-base-200 text-base-200-content border-t border-t-solid border-t-base-300'}
+    >
       <Link
         to={RouteBuilder.buildProjectHomePath(projectId)}
         className={`${selectKey === 'detail' ? 'dock-active' : ''} dock-item`}

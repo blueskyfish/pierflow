@@ -33,10 +33,10 @@ export const ProjectMessage: React.FC<ProjectMessageProps> = ({ filterId }) => {
   }, [messageList]);
 
   return (
-    <div className={'overflow-x-auto !h-48 bg-base-200 rounded-box mb-4 border border-base-300'}>
+    <div className={'overflow-x-auto !h-48 bg-base-200 mb-13 border-t border-t-solid border-t-base-300'}>
       <table className={'table table-xs table-zebra table-pin-rows'}>
         <thead>
-          <tr>
+          <tr className={'bg-base-200'}>
             <th>No</th>
             <th>
               <div className={'text-center'}>Status</div>

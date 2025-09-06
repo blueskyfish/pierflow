@@ -1,6 +1,6 @@
 export interface BranchDto {
   branch: string;
-  place: string;
+  place: number;
   active: boolean;
 }
 

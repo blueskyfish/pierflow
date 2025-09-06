@@ -8,7 +8,7 @@ export const ProjectDeletePage: React.FC = () => {
   const project = useAppSelector(selectSelectProject);
   return (
     <ProjectAllow command={ProjectCommand.DeleteProject} project={project} projectKey={ProjectPath.Delete}>
-      <HeadLine title={`Delete `} as={'h2'} icon={`mdi mdi-factory`} className={'mb-4'} />
+      <HeadLine title={`Delete `} as={'h2'} icon={`mdi mdi-factory`} className={'mb-4 px-3 pt-3'} />
     </ProjectAllow>
   );
 };

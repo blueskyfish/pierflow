@@ -1,4 +1,5 @@
-import { ProjectCommand, type ProjectDto, updateProjectKey, useAppDispatch } from '@blueskyfish/pierflow/stores';
+import type { ProjectDto } from '@blueskyfish/pierflow/api';
+import { ProjectCommand, updateProjectKey, useAppDispatch } from '@blueskyfish/pierflow/stores';
 import { ProjectPath, RouteBuilder, RoutePath } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
 import { type PropsWithChildren, useEffect } from 'react';
