@@ -41,7 +41,7 @@ func (tc *taskClient) runTask(projectPath, taskFile, taskName string, messager e
 		logger.Errorf("failed to run task: %s", err.Error())
 		messager.Send(eventer.StatusError, fmt.Sprintf("failed to run task: %s", err.Error()))
 	} else {
-		messager.Send(eventer.StatusInfo, fmt.Sprintf("task [%s] finished", taskName))
+		messager.Send(eventer.StatusSuccess, fmt.Sprintf("task [%s] finished", taskName))
 	}
 }
 

@@ -37,6 +37,9 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 	}
 
 	messager := pm.eventServe.WithMessage(CommandBranchList.Message(), userId, project.ID, nil)
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+	}
 
 	// get the branch list
 	logger.Infof("Get branches for project '%s' with refresh=%t", project.Name, refresh)
@@ -66,11 +69,19 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	}
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)
 
-	messager := pm.eventServe.WithMessage(CommandCheckoutRepository.Message(), userId, project.ID, func() {
-		if err := pm.updateProjectStatus(project, StatusCheckedOut); err != nil {
+	messager := pm.eventServe.WithMessage(CommandCheckoutRepository.Message(), userId, project.ID, func(data interface{}) {
+		branch, ok := data.(gitter.Branch)
+		if !ok {
+			logger.Warnf("Invalid branch data after checkout for project '%s'", project.Name)
+			return
+		}
+		if err := pm.updateProjectWith(project, StatusCheckedOut, branch.Branch); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCheckedOut, err.Error())
 		}
 	})
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+	}
 
 	// check out the branch
 	options := gitter.CheckoutOptions{

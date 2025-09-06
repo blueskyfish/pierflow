@@ -74,3 +74,12 @@ func (pm *ProjectManager) updateProjectStatus(p *DbProject, status ProjectStatus
 		return tx.Save(p).Error
 	})
 }
+
+func (pm *ProjectManager) updateProjectWith(p *DbProject, status ProjectStatus, branch string) error {
+	return pm.db.Transaction(func(tx *gorm.DB) error {
+		p.Status = status
+		p.Branch = branch
+		p.Modified = time.Now().UTC().Unix()
+		return tx.Save(p).Error
+	})
+}

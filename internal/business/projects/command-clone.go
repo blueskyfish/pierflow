@@ -33,8 +33,15 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
-	messager := pm.eventServe.WithMessage(CommandCloneRepository.Message(), userId, project.ID, func() {
-		if err := pm.updateProjectStatus(project, StatusCloned); err != nil {
+	messager := pm.eventServe.WithMessage(CommandCloneRepository.Message(), userId, project.ID, func(data interface{}) {
+		branch, ok := data.(gitter.Branch)
+		if !ok {
+			logger.Errorf("Failed to get branch from data: %v", data)
+			return
+		}
+		logger.Infof("[%s] finished with branch %s", project.Name, branch.Branch)
+		// update the project branch and status
+		if err := pm.updateProjectWith(project, StatusCloned, branch.Branch); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCloned, err.Error())
 		}
 	})
