@@ -1,12 +1,13 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { ServerEvent } from './events.models.ts';
+import type { ErrorDto } from '@blueskyfish/pierflow/api';
 
 export type EventConnectStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
 export interface EventState {
   status: EventConnectStatus;
   messages: ServerEvent[];
-  error: string | null;
+  error: ErrorDto | null;
 }
 
 export const EventFeatureKey = 'events';
@@ -30,7 +31,7 @@ const eventStore = createSlice({
     addMessage: (state, action: PayloadAction<ServerEvent>) => {
       state.messages.push(action.payload);
     },
-    setError: (state, action) => {
+    setError: (state, action: PayloadAction<ErrorDto | null>) => {
       state.error = action.payload;
     },
     clearMessages: (state) => {

@@ -7,15 +7,23 @@ import (
 
 type GitClient interface {
 	// Clone a git repository to the specified path.
+	//
+	// On success, it sends the current branch information through the messager.
 	Clone(o *CloneOptions, messager eventer.Messager)
 
 	// BranchList lists branches in the specified repository path.
+	//
+	// On success, it sends the list of branches through the messager.
 	BranchList(options *BranchOptions, messager eventer.Messager)
 
 	// Checkout a specific branch in the given repository path.
+	//
+	// On success, it sends the current branch information through the messager.
 	Checkout(o *CheckoutOptions, messager eventer.Messager)
 
 	// Pull the latest changes from the remote repository.
+	//
+	// On success, it sends the current branch information through the messager.
 	Pull(o *PullOptions, messager eventer.Messager)
 }
 
