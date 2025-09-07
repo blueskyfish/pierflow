@@ -4,6 +4,7 @@ import {
   EventStatus,
   ProjectCommand,
   type ServerEvent,
+  setError,
   toEventType,
   updateBranchList,
   updateProjectBranch,
@@ -13,7 +14,13 @@ import {
 import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { type BranchDto, fetchBranchList, fetchCheckoutBranch, type ProjectDto } from '@blueskyfish/pierflow/api';
+import {
+  type BranchDto,
+  type ErrorDto,
+  fetchBranchList,
+  fetchCheckoutRepository,
+  type ProjectDto,
+} from '@blueskyfish/pierflow/api';
 import { GitPlace } from './GitPlace.tsx';
 
 export interface CheckoutProps {
@@ -57,7 +64,11 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
     );
 
     // start to fetch the branch list. The branch list will be delivered via server side events
-    fetchBranchList(project.id, refresh).catch(() => removeListener());
+    fetchBranchList(project.id, refresh).catch((error: ErrorDto) => {
+      dispatch(setError(error));
+      setLoading(false);
+      removeListener();
+    });
 
     return removeListener;
   }, [dispatch, eventSource, project, refresh]);
@@ -92,7 +103,11 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
       );
 
       // start to check out the branch. The result will be delivered via server side events
-      fetchCheckoutBranch(project.id, { branch, place, message: 'TODO' }).catch(() => removeListener());
+      fetchCheckoutRepository(project.id, { branch, place, message: 'TODO' }).catch((error: ErrorDto) => {
+        dispatch(setError(error));
+        setLoading(false);
+        removeListener();
+      });
 
       return () => {
         setLoading(false);
@@ -126,7 +141,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
       <HeadLine
         title={`Checkout ${project!.name}`}
         as={'h2'}
-        icon={'mdi mdi-factory'}
+        icon={'mdi mdi-source-branch'}
         className={'mb-4 flex-shrink-1 px-3 pt-3'}
         loading={loading}
       />
@@ -191,7 +206,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
                           <>
                             <button
                               type={'button'}
-                              className={'btn btn-xs btn-soft btn-secondary btn-sm'}
+                              className={'btn btn-xs btn-soft btn-secondary'}
                               onClick={() => checkoutBranchRepositor(item.branch, item.place)}
                             >
                               Checkout

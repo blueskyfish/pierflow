@@ -12,7 +12,7 @@ export interface ProjectDockProps {
 const ProjectDockMaps: Record<string, { icon: string; label: string; pageKey: ProjectPath }> = {
   [ProjectCommand.CloneRepository]: { icon: 'mdi mdi-store-plus-outline', label: 'Clone', pageKey: ProjectPath.Clone },
   [ProjectCommand.CheckoutRepository]: {
-    icon: 'mdi mdi-store-check-outline',
+    icon: 'mdi mdi-source-branch',
     label: 'Checkout',
     pageKey: ProjectPath.Checkout,
   },
@@ -27,7 +27,7 @@ const ProjectDockMaps: Record<string, { icon: string; label: string; pageKey: Pr
     label: 'Stop Project',
     pageKey: ProjectPath.Stop,
   },
-  [ProjectCommand.PullRepository]: { icon: 'mdi mdi-refresh', label: 'Pull', pageKey: ProjectPath.Pull },
+  [ProjectCommand.PullRepository]: { icon: 'mdi mdi-source-pull', label: 'Pull', pageKey: ProjectPath.Pull },
   [ProjectCommand.DeleteProject]: {
     icon: 'mdi mdi-delete-outline',
     label: 'Delete Project',

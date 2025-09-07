@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { fetchingHeaders } from './fetch-user.ts';
+import { errorHandling, fetchingHeaders } from './fetch-helpers.ts';
 import type { ProjectDto } from './entities.ts';
 
 export const fetchProjectList = async (): Promise<ProjectDto[]> => {
@@ -13,8 +13,7 @@ export const fetchProjectList = async (): Promise<ProjectDto[]> => {
   try {
     const { data } = await axios.request(options);
     return data as ProjectDto[];
-  } catch (e) {
-    console.error('> Failed to load project list', e);
-    return [];
+  } catch (error: any) {
+    return errorHandling(error, '/api/projects');
   }
 };

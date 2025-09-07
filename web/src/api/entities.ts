@@ -28,3 +28,9 @@ export interface CheckoutPayload {
   place: string;
   message: string;
 }
+
+export interface ErrorDto {
+  type: string;
+  status: number;
+  message: string;
+}

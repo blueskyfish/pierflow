@@ -70,7 +70,7 @@ func (g *gitClient) runClone(o *CloneOptions, messager eventer.Messager) {
 		messager.Send(eventer.StatusError, err.Error())
 		return
 	}
-	messager.Send(eventer.StatusSuccess, toBranch(head, true))
-
 	logger.Infof("cloned repository successfully into '%s' with head '%s'", repositoryPath, head.String())
+	
+	messager.Send(eventer.StatusSuccess, toBranch(head, true))
 }

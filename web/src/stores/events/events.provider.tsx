@@ -56,7 +56,13 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
         es.onerror = (error) => {
           console.error('EventSource failed:', error);
           dispatch(updateStatus('error'));
-          dispatch(setError('EventSource failed'));
+          dispatch(
+            setError({
+              type: `/api/projects/connect`,
+              status: 500,
+              message: 'Connection to event stream failed. Reconnecting...',
+            }),
+          );
           es.close();
           setEventSource(null);
 
@@ -71,7 +77,7 @@ export const EventsProvider: React.FC<PropsWithChildren> = ({ children }) => {
         });
 
         es.addEventListener('heartbeat', (event) => {
-          console.log('Received heartbeat =>', event.data);
+          console.log('Received heartbeat => %s', event.lastEventId, event.data);
         });
 
         // store the event source in state
