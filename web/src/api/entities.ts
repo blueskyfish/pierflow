@@ -21,12 +21,22 @@ export interface ProjectDto {
    * Optional the list of branches for the project repository
    */
   branchList?: BranchDto[];
+
+  /**
+   * Optional the list of tasks for the project from taskfiles
+   */
+  taskfileList?: string[];
 }
 
 export interface CheckoutPayload {
   branch: string;
   place: string;
-  message: string;
+  message: string; // TODO remove later
+}
+
+export interface BuildPayload {
+  taskfile: string;
+  message: string; // TODO remove later
 }
 
 export interface ErrorDto {
