@@ -1,6 +1,7 @@
 export * from './GitPlace';
 export * from './MessageLabel';
 export * from './ProjectAllow';
+export * from './ProjectBuild';
 export * from './ProjectCard';
 export * from './ProjectCheckout';
 export * from './ProjectDetail';
@@ -8,3 +9,4 @@ export * from './ProjectDock';
 export * from './ProjectMessage';
 export * from './ProjectPull';
 export * from './ProjectStatus';
+export * from './ProjectTaskfileList';

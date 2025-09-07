@@ -6,6 +6,8 @@ import (
 
 type TaskClient interface {
 	// Task executes a specific task defined in the Taskfile located in the project directory.
+	//
+	// on success, it sends a success message with the taskName, otherwise it sends an error message.
 	Task(projectPath, taskFile, taskName string, messager eventer.Messager)
 
 	// List lists all available tasks defined in the Taskfile located in the project directory.

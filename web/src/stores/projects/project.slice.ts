@@ -1,7 +1,12 @@
 import { createSlice, type MiddlewareAPI, type PayloadAction } from '@reduxjs/toolkit';
 import { type BranchDto, fetchProjectList, type ProjectDto } from '@blueskyfish/pierflow/api';
 import { loadProjectList, ProjectFeatureKey, type ProjectState } from '@blueskyfish/pierflow/stores';
-import { reduceUpdateBranchList, reduceUpdateProjectBranch, reduceUpdateProjectList } from './project.reducing.ts';
+import {
+  reduceUpdateBranchList,
+  reduceUpdateProjectBranch,
+  reduceUpdateProjectList,
+  reduceUpdateProjectTaskfileList,
+} from './project.reducing.ts';
 
 export const projectSlice = createSlice({
   name: ProjectFeatureKey,
@@ -31,10 +36,18 @@ export const projectSlice = createSlice({
       const { projectId, branch } = action.payload;
       return reduceUpdateProjectBranch(state, projectId, branch);
     },
+    updateProjectTaskfileList: (
+      state: ProjectState,
+      action: PayloadAction<{ projectId: string; taskfileList: string[] }>,
+    ) => {
+      const { projectId, taskfileList } = action.payload;
+      return reduceUpdateProjectTaskfileList(state, projectId, taskfileList);
+    },
   },
 });
 
-export const { updateSelectedId, updateProjectList, updateBranchList, updateProjectBranch } = projectSlice.actions;
+export const { updateSelectedId, updateProjectList, updateBranchList, updateProjectBranch, updateProjectTaskfileList } =
+  projectSlice.actions;
 export const projectReducer = projectSlice.reducer;
 
 /**

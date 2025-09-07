@@ -16,7 +16,11 @@ const ProjectDockMaps: Record<string, { icon: string; label: string; pageKey: Pr
     label: 'Checkout',
     pageKey: ProjectPath.Checkout,
   },
-  [ProjectCommand.BuildProject]: { icon: 'mdi mdi-cog-outline', label: 'Build Project', pageKey: ProjectPath.Build },
+  [ProjectCommand.BuildProject]: {
+    icon: 'mdi mdi-application-brackets-outline',
+    label: 'Build Project',
+    pageKey: ProjectPath.Build,
+  },
   [ProjectCommand.StartProject]: {
     icon: 'mdi mdi-play-circle-outline',
     label: 'Start Project',

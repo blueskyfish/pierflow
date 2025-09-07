@@ -53,3 +53,24 @@ export const reduceUpdateProjectBranch = (state: ProjectState, projectId: string
     },
   };
 };
+
+export const reduceUpdateProjectTaskfileList = (
+  state: ProjectState,
+  projectId: string,
+  taskfileList: string[],
+): ProjectState => {
+  let project = state.map[projectId];
+  if (project) {
+    project = {
+      ...project,
+      taskfileList,
+    };
+  }
+  return {
+    ...state,
+    map: {
+      ...state.map,
+      [projectId]: project,
+    },
+  };
+};
