@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import { type ErrorDto, fetchBuildProject, fetchGetTaskFileList, type ProjectDto } from '@blueskyfish/pierflow/api';
+import { useCallback, useState } from 'react';
+import { type ErrorDto, fetchBuildProject, type ProjectDto } from '@blueskyfish/pierflow/api';
 import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
 import { ProjectDetail } from './ProjectDetail.tsx';
 import {
@@ -11,11 +11,9 @@ import {
   type ServerEvent,
   setError,
   toEventType,
-  updateProjectTaskfileList,
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
-import { ProjectTaskfileList } from './ProjectTaskfileList.tsx';
 import { Duration } from 'luxon';
 
 export interface ProjectBuildProps {
@@ -24,85 +22,59 @@ export interface ProjectBuildProps {
 
 export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
   const [loading, setLoading] = useState(false);
-  const [taskfile, setTaskfile] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(-1);
   const [duration, setDuration] = useState<number>(-1);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
 
-  const loadTaskfileList = useCallback(() => {
-    setLoading(true);
+  const buildProject = useCallback(() => {
+    // Implement the build project logic here
+    console.log(`Building project ${project.name} with taskfile ${project.taskfile}`);
 
-    fetchGetTaskFileList(project.id)
-      .then((taskfileList: string[]) => {
-        dispatch(updateProjectTaskfileList({ projectId: project.id, taskfileList }));
-      })
-      .catch((error: ErrorDto) => {
-        dispatch(setError(error));
-      })
-      .finally(() => setLoading(false));
-  }, [dispatch, project.id]);
+    setStartTime(Date.now());
 
-  const buildProject = useCallback(
-    (taskfile: string) => {
-      // Implement the build project logic here
-      console.log(`Building project ${project.name} with taskfile ${taskfile}`);
+    const timerHandle = setInterval(() => {
+      setDuration(Date.now() - startTime);
+    }, 1_000);
 
-      setTaskfile(taskfile);
-      setStartTime(Date.now());
+    const removeListener = addEventMessager(
+      eventSource,
+      toEventType(ProjectCommand.BuildProject),
+      (event: ServerEvent) => {
+        switch (event.status) {
+          case EventStatus.Success:
+            setLoading(false);
+            setStartTime(-1);
+            setDuration(-1);
+            clearInterval(timerHandle);
+            removeListener();
+            // TODO add toast message for success
+            // TODO reload project details
+            return;
+          case EventStatus.Error:
+            dispatch(addMessage(event));
+            setLoading(false);
+            setStartTime(-1);
+            setDuration(-1);
+            clearInterval(timerHandle);
+            removeListener();
+            return;
+          default:
+            dispatch(addMessage(event));
+            return;
+        }
+      }, // end of event handler
+    );
 
-      const timerHandle = setInterval(() => {
-        setDuration(Date.now() - startTime);
-      }, 1_000);
-
-      const removeListener = addEventMessager(
-        eventSource,
-        toEventType(ProjectCommand.BuildProject),
-        (event: ServerEvent) => {
-          switch (event.status) {
-            case EventStatus.Success:
-              if (event.id === project.id) {
-                setTaskfile('');
-              }
-              setLoading(false);
-              setStartTime(-1);
-              setDuration(-1);
-              clearInterval(timerHandle);
-              removeListener();
-              return;
-            case EventStatus.Error:
-              dispatch(addMessage(event));
-              setLoading(false);
-              setStartTime(-1);
-              setDuration(-1);
-              clearInterval(timerHandle);
-              removeListener();
-              return;
-            default:
-              dispatch(addMessage(event));
-              return;
-          }
-        }, // end of event handler
-      );
-
-      fetchBuildProject(project.id, { taskfile, message: 'TODO' }).catch((error: ErrorDto) => {
-        dispatch(setError(error));
-        setLoading(false);
-        setStartTime(-1);
-        setDuration(-1);
-        clearInterval(timerHandle);
-        removeListener();
-      });
-    },
-    [dispatch, eventSource, project.id, project.name, startTime],
-  );
-
-  useEffect(() => {
-    if (Array.isArray(project.taskfileList)) {
-      return;
-    }
-    loadTaskfileList();
-  }, [loadTaskfileList, project]);
+    fetchBuildProject(project.id).catch((error: ErrorDto) => {
+      dispatch(setError(error));
+      setLoading(false);
+      setStartTime(-1);
+      setDuration(-1);
+      clearInterval(timerHandle);
+      removeListener();
+    });
+  }, [dispatch, eventSource, project.id, project.name, project.taskfile, startTime]);
 
   return (
     <>
@@ -115,9 +87,9 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
       />
       <ul className={'menu menu-horizontal'}>
         <li>
-          <button type={'button'} className={'btn btn-soft btn-primary'} onClick={loadTaskfileList}>
-            <span className={'mdi mdi-refresh mr-2'} />
-            Reload Taskfiles
+          <button type={'button'} className={'btn btn-soft btn-primary'} disabled={loading} onClick={buildProject}>
+            <span className={'mdi mdi-application-brackets-outline mr-2'} />
+            Build Project
           </button>
         </li>
         {duration > 0 && (
@@ -129,7 +101,6 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
       </ul>
       <ScrollBar direction={ScrollingDirection.Vertical} className={'p-3'}>
         <ProjectDetail project={project} />
-        <ProjectTaskfileList taskFiles={project.taskfileList ?? []} onBuild={buildProject} activeTaskfile={taskfile} />
       </ScrollBar>
     </>
   );

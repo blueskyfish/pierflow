@@ -11,6 +11,7 @@ func toProjectResponse(p *DbProject) *ProjectResponse {
 		Description: p.Description,
 		GitUrl:      p.GitUrl,
 		Branch:      p.Branch,
+		Taskfile:    p.Taskfile,
 		Path:        p.Path,
 		User:        p.User,
 		Creation:    time.Unix(p.Creation, 0).Format(time.RFC3339),

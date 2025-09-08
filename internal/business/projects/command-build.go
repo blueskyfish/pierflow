@@ -18,7 +18,7 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User is required"))
 	}
 
-	project, payload, force, err := pm.prepareProjectTask(ctx, CommandBuildProject)
+	project, force, err := pm.prepareProjectTask(ctx, CommandBuildProject)
 	if err != nil {
 		return err.JSON(ctx)
 	}
@@ -37,8 +37,14 @@ func (pm *ProjectManager) BuildProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
 	}
 
+	taskfile := project.Taskfile
+	if taskfile == "" {
+		taskfile = DefaultTaskfileName
+		logger.Infof("Project '%s' does not have a taskfile, using default '%s'", project.Name, taskfile)
+	}
+
 	// Build the project
-	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameBuild, messager)
+	pm.taskClient.Task(project.Path, taskfile, TaskNameBuild, messager)
 
 	return ctx.String(http.StatusNoContent, "")
 }

@@ -1,5 +1,6 @@
 export * from './entities';
 export * from './fetch-helpers.ts';
+export * from './featch-change-taskfile';
 export * from './fetch-branch-list';
 export * from './fetch-build-project';
 export * from './fetch-checkout-repository';

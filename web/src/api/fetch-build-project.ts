@@ -1,15 +1,13 @@
-import type { BuildPayload } from './entities.ts';
 import { errorHandling, fetchingHeaders } from './fetch-helpers.ts';
 import axios from 'axios';
 
-export const fetchBuildProject = async (projectId: string, payload: BuildPayload): Promise<void> => {
+export const fetchBuildProject = async (projectId: string): Promise<void> => {
   const options = {
-    method: 'PUT',
+    method: 'GET',
     headers: {
       ...fetchingHeaders,
     },
     url: `/api/projects/${projectId}/build`,
-    data: payload,
   };
   try {
     await axios.request(options);

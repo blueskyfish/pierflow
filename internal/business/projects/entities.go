@@ -8,10 +8,11 @@ import (
 type DbProject struct {
 	ID          string        `json:"id" gorm:"primaryKey;index:uni_project_id;not null"`
 	Name        string        `json:"name" gorm:"not null"`
-	Description string        `json:"description"`
+	Description string        `json:"description" gorm:"default:''"`
 	Path        string        `json:"path" gorm:"not null"`
 	GitUrl      string        `json:"gitUrl" gorm:"not null"`
-	Branch      string        `json:"branch" gorm:"default:''"`
+	Branch      string        `json:"branch" gorm:"default:''"`   // Branch: default: main
+	Taskfile    string        `json:"taskfile" gorm:"default:''"` // Taskfile: default: Taskfile.yml
 	User        string        `json:"user" gorm:"not null"`
 	Token       string        `json:"token" gorm:"not null"`
 	Creation    int64         `json:"creation" gorm:"autoCreateTime"`

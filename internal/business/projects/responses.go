@@ -23,6 +23,7 @@ type ProjectResponse struct {
 	Path        string     `json:"path"`
 	GitUrl      string     `json:"gitUrl"`
 	Branch      string     `json:"branch"`
+	Taskfile    string     `json:"taskfile"`
 	User        string     `json:"user"`
 	Creation    string     `json:"creation"`
 	Modified    string     `json:"modified"`

@@ -4,6 +4,7 @@ import { loadProjectList, ProjectFeatureKey, type ProjectState } from '@blueskyf
 import {
   reduceUpdateBranchList,
   reduceUpdateProjectBranch,
+  reduceUpdateProjectDetail,
   reduceUpdateProjectList,
   reduceUpdateProjectTaskfileList,
 } from './project.reducing.ts';
@@ -24,6 +25,9 @@ export const projectSlice = createSlice({
     updateProjectList: (state: ProjectState, action: PayloadAction<ProjectDto[]>) => {
       const projectList = action.payload;
       return reduceUpdateProjectList(state, projectList);
+    },
+    updateProjectDetail: (state: ProjectState, action: PayloadAction<ProjectDto>) => {
+      return reduceUpdateProjectDetail(state, action.payload);
     },
     updateBranchList: (state: ProjectState, action: PayloadAction<{ projectId: string; branchList: BranchDto[] }>) => {
       const { projectId, branchList } = action.payload;
@@ -46,8 +50,17 @@ export const projectSlice = createSlice({
   },
 });
 
-export const { updateSelectedId, updateProjectList, updateBranchList, updateProjectBranch, updateProjectTaskfileList } =
-  projectSlice.actions;
+// Exports the actions
+export const {
+  updateSelectedId,
+  updateProjectDetail,
+  updateProjectList,
+  updateBranchList,
+  updateProjectBranch,
+  updateProjectTaskfileList,
+} = projectSlice.actions;
+
+// Exports the reducer
 export const projectReducer = projectSlice.reducer;
 
 /**

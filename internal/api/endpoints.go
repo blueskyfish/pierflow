@@ -26,16 +26,17 @@ func registerEndpoints(pm *projects.ProjectManager, sm *business.SystemManager, 
 	// Manages Project Commands
 	group.PUT("/projects/:id/clone", pm.CloneRepositoryProject)
 	group.PUT("/projects/:id/checkout", pm.CheckoutProjectBranch)
-	group.PUT("/projects/:id/build", pm.BuildProject)
-	group.PUT("/projects/:id/start", pm.StartProject)
-	group.PUT("/projects/:id/stop", pm.StopProject)
+	group.GET("/projects/:id/build", pm.BuildProject)
+	group.GET("/projects/:id/start", pm.StartProject)
+	group.GET("/projects/:id/stop", pm.StopProject)
 
 	// Manage Project Branches
 	group.GET("/projects/:id/branches", pm.GetProjectBranchList)
 	group.GET("/projects/:id/branches/pull", pm.GetProjectBranchPull)
 
 	group.GET("/projects/:id/tasks", pm.GetTaskFileList)
-	group.GET("/projects/:id/tasks/:taskFile", pm.GetTaskNameListByTaskFile)
+	group.PUT("/projects/:id/tasks", pm.UpdateTaskfile)
+	group.GET("/projects/:id/tasks/names", pm.GetTaskNameList)
 
 	// Project Event (server-sent events) and connection management
 	group.GET("/projects/connect/:id", pm.ProjectEventConnect)

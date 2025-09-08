@@ -18,7 +18,7 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
 	}
 
-	project, payload, force, pErr := pm.prepareProjectTask(ctx, CommandStartProject)
+	project, force, pErr := pm.prepareProjectTask(ctx, CommandStartProject)
 	if pErr != nil {
 		return pErr.JSON(ctx)
 	}
@@ -34,8 +34,14 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 		}
 	})
 
+	taskfile := project.Taskfile
+	if taskfile == "" {
+		taskfile = DefaultTaskfileName
+		logger.Infof("Project '%s' does not have a taskfile, using default '%s'", project.Name, taskfile)
+	}
+
 	// Start to run the project
-	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameStart, messager)
+	pm.taskClient.Task(project.Path, taskfile, TaskNameStart, messager)
 
 	return ctx.String(http.StatusNoContent, "")
 }

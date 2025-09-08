@@ -13,7 +13,9 @@ const (
 	TaskNameBuild = "build" // TaskNameBuild is used to build the project
 	TaskNameStart = "start" // TaskNameStart is used to start the task
 	TaskNameStop  = "stop"  // TaskNameStop is used to stop the task
-	TaskNameInfo  = "info"  // TaskNameInfo is used to get information about task
+	TaskNameInfo  = "info"  // TaskNameInfo is used to get information about tasks
+
+	DefaultTaskfileName = "Taskfile.yml"
 )
 
 func (pm *ProjectManager) listTaskFiles(p *DbProject) ([]string, error) {
@@ -30,6 +32,10 @@ func (pm *ProjectManager) listTaskFiles(p *DbProject) ([]string, error) {
 			return nil
 		}
 
+		// Check if the file is a YAML file and contains "taskfile" in its name (case-insensitive)
+		// We consider both .yml and .yaml extensions
+		// Example valid names: Taskfile.yml, taskfile.yaml, MyTaskFile.YML
+		// Example invalid names: config.yml, tasks.yaml, Taskfile.txt
 		if (filepath.Ext(filePath) == ".yml" || filepath.Ext(filePath) == ".yaml") &&
 			strings.Contains(strings.ToLower(filepath.Base(filePath)), "taskfile") {
 			fileList = append(fileList, info.Name())

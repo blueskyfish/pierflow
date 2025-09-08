@@ -13,6 +13,16 @@ export const reduceUpdateProjectList = (state: ProjectState, projectList: Projec
   };
 };
 
+export const reduceUpdateProjectDetail = (state: ProjectState, project: ProjectDto): ProjectState => {
+  return {
+    ...state,
+    map: {
+      ...state.map,
+      [project.id]: project,
+    },
+  };
+};
+
 export const reduceUpdateBranchList = (
   state: ProjectState,
   projectId: string,
