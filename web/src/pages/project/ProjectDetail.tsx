@@ -6,9 +6,15 @@ import * as React from 'react';
 
 export interface ProjectDetailProps {
   project: ProjectDto;
+  onChange?: (command: string) => void;
 }
 
-export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project }) => {
+export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onChange }) => {
+  const change = (command: string) => {
+    if (onChange) {
+      onChange(command);
+    }
+  };
   return (
     <Panel>
       <div className={'flex flex-row align-items-stretch'}>
@@ -28,7 +34,18 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project }) => {
             </a>
           </LabelValue>
           <LabelValue label={'Branch'} size={'sm'}>
-            {project.branch}
+            <span>{project.branch !== '' ? project.branch : '--'}</span>
+          </LabelValue>
+          <LabelValue label={'Taskfile'} size={'sm'}>
+            <span className={'mr-4'}>{project.taskfile !== '' ? project.taskfile : '--'}</span>
+            <button
+              type={'button'}
+              className={'btn btn-soft btn-xs btn-primary'}
+              disabled={!onChange}
+              onClick={() => change('taskfile')}
+            >
+              Change Taskfile
+            </button>
           </LabelValue>
           <LabelValue label={'User'} size={'sm'}>
             {project.user}

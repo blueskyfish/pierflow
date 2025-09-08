@@ -11,6 +11,7 @@ export interface ProjectDto {
   path: string;
   gitUrl: string;
   branch: string;
+  taskfile: string;
   user: string;
   creation: string;
   modified: string;
@@ -34,6 +35,9 @@ export interface CheckoutPayload {
   message: string; // TODO remove later
 }
 
+/**
+ * @deprecated
+ */
 export interface BuildPayload {
   taskfile: string;
   message: string; // TODO remove later

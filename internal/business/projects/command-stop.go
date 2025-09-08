@@ -14,7 +14,7 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
 	}
 
-	project, payload, force, pErr := pm.prepareProjectTask(ctx, CommandStopProject)
+	project, force, pErr := pm.prepareProjectTask(ctx, CommandStopProject)
 	if pErr != nil {
 		return pErr.JSON(ctx)
 	}
@@ -30,8 +30,14 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 		}
 	})
 
+	taskfile := project.Taskfile
+	if taskfile == "" {
+		taskfile = DefaultTaskfileName
+		logger.Infof("Project '%s' does not have a taskfile, using default '%s'", project.Name, taskfile)
+	}
+
 	// Stop the project
-	pm.taskClient.Task(project.Path, payload.TaskFile, TaskNameStop, messager)
+	pm.taskClient.Task(project.Path, taskfile, TaskNameStop, messager)
 
 	return ctx.String(http.StatusNoContent, "")
 }
