@@ -145,7 +145,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
         className={'mb-4 flex-shrink-1 px-3 pt-3'}
         loading={loading}
       />
-      <ul className={'menu menu-horizontal rounded-box mb-4 flex-shrink-1 border-t border-b border-gray-200 w-full'}>
+      <ul className={'menu menu-horizontal mb-4 flex-shrink-1 border-t border-b border-gray-200 w-full'}>
         <li>
           <button
             className={'tooltip'}

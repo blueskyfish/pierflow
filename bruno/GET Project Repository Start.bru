@@ -1,20 +1,13 @@
 meta {
-  name: PUT Project Repository Start
+  name: GET Project Repository Start
   type: http
   seq: 11
 }
 
-put {
+get {
   url: http://{{HOST}}:{{PORT}}/api/projects/{{PROJECT_ID}}/start
   body: json
   auth: inherit
-}
-
-body:json {
-  {
-    "taskfile": "Taskfile.yml",
-    "message": "Start as strean"
-  }
 }
 
 settings {

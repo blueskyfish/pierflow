@@ -7,3 +7,5 @@ export * from './fetch-checkout-repository';
 export * from './fetch-get-taskfile-list';
 export * from './fetch-project-list';
 export * from './fetch-pull-repository';
+export * from './fetch-start-project';
+export * from './fetch-stop-project';

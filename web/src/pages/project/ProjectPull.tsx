@@ -71,7 +71,7 @@ export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {
         className={'mb-4 px-3 pt-3'}
         loading={loading}
       />
-      <ul className={'menu menu-horizontal'}>
+      <ul className={'menu menu-horizontal border-t border-b border-gray-200 w-full'}>
         <li>
           <button type={'button'} className={'btn btn-soft btn-primary'} onClick={() => pullRepository()}>
             <span className={'mdi mdi-source-pull mr-2'} />
