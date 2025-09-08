@@ -1,20 +1,13 @@
 meta {
-  name: PUT Project Repository Build
+  name: GET Project Repository Build
   type: http
   seq: 10
 }
 
-put {
+get {
   url: http://{{HOST}}:{{PORT}}/api/projects/{{PROJECT_ID}}/build
   body: json
   auth: inherit
-}
-
-body:json {
-  {
-    "taskfile": "Taskfile.yml",
-    "message": "Test messager"
-  }
 }
 
 settings {
