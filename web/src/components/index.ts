@@ -3,6 +3,7 @@ export * from './card';
 export * from './formatting';
 export * from './sidebar';
 export * from './typograhie';
+export * from './toast';
 export * from './LabelValue';
 export * from './MainContent';
 export * from './Panel';
