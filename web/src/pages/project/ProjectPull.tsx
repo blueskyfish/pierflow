@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useCallback } from 'react';
 import { type ErrorDto, fetchPullRepository, type ProjectDto } from '@blueskyfish/pierflow/api';
-import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
+import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
 import { ProjectDetail } from './ProjectDetail.tsx';
 import {
   addEventMessager,
@@ -23,6 +23,7 @@ export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {
   const [loading, setLoading] = React.useState(false);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
+  const toaster = useToast();
 
   const pullRepository = useCallback(() => {
     setLoading(true);
@@ -34,6 +35,11 @@ export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {
           if (event.id === project.id) {
             const { branch } = JSON.parse(event.message) as { branch: string };
             dispatch(updateProjectBranch({ projectId: project.id, branch }));
+            toaster.add({
+              state: 'success',
+              title: 'Pull',
+              message: `Pull operation completed successfully for project ${project.name} and ${branch}.`,
+            });
           }
           remoteListener();
           return;
@@ -41,6 +47,11 @@ export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {
           setLoading(false);
           dispatch(addMessage(event));
           remoteListener();
+          toaster.add({
+            state: 'error',
+            title: 'Pull',
+            message: `Pull operation failed for project ${project.name}.`,
+          });
           return;
         default:
           dispatch(addMessage(event));
@@ -60,7 +71,7 @@ export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {
         remoteListener();
       }
     };
-  }, [dispatch, eventSource, project.id]);
+  }, [dispatch, eventSource, project.id, project.name, toaster]);
 
   return (
     <>
