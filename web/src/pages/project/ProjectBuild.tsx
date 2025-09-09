@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useCallback, useState } from 'react';
 import { type ErrorDto, fetchBuildProject, type ProjectDto } from '@blueskyfish/pierflow/api';
-import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
+import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
 import { ProjectDetail } from './ProjectDetail.tsx';
 import {
   addEventMessager,
@@ -26,6 +26,7 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
   const [duration, setDuration] = useState<number>(-1);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
+  const toaster = useToast();
 
   const buildProject = useCallback(() => {
     // Implement the build project logic here
@@ -48,7 +49,12 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
             setDuration(-1);
             clearInterval(timerHandle);
             removeListener();
-            // TODO add toast message for success
+            toaster.add({
+              state: 'success',
+              title: 'Build',
+              message: `Build operation completed successfully for project ${project.name}.`,
+              timeout: 3_000,
+            });
             // TODO reload project details
             return;
           case EventStatus.Error:
@@ -58,6 +64,12 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
             setDuration(-1);
             clearInterval(timerHandle);
             removeListener();
+            toaster.add({
+              state: 'error',
+              title: 'Build',
+              message: `Build operation failed for project ${project.name}.`,
+              timeout: 3_000,
+            });
             return;
           default:
             dispatch(addMessage(event));
@@ -74,7 +86,7 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
       clearInterval(timerHandle);
       removeListener();
     });
-  }, [dispatch, eventSource, project.id, project.name, project.taskfile, startTime]);
+  }, [dispatch, eventSource, project.id, project.name, project.taskfile, startTime, toaster]);
 
   return (
     <>

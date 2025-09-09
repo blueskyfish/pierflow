@@ -1,7 +1,7 @@
 import { type ErrorDto, fetchStopProject, type ProjectDto } from '@blueskyfish/pierflow/api';
 import * as React from 'react';
 import { useCallback, useState } from 'react';
-import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
+import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
 import { ProjectDetail } from './ProjectDetail.tsx';
 import {
   addEventMessager,
@@ -23,6 +23,7 @@ export const ProjectStop: React.FC<ProjectStopProps> = ({ project }) => {
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
+  const toaster = useToast();
 
   const stopProject = useCallback(() => {
     setLoading(true);
@@ -36,13 +37,21 @@ export const ProjectStop: React.FC<ProjectStopProps> = ({ project }) => {
             console.log('> StopProject event:', event);
             remoteListener();
             setLoading(false);
-            // TODO add toast notification for success
+            toaster.add({
+              state: 'success',
+              title: 'Stop',
+              message: `Stop operation completed successfully for project ${project.name}.`,
+            });
             return;
           case EventStatus.Error:
             dispatch(addMessage(event));
             setLoading(false);
             remoteListener();
-            // TODO add toast notification for error
+            toaster.add({
+              state: 'error',
+              title: 'Stop',
+              message: `Stop operation failed for project ${project.name}.`,
+            });
             return;
           default:
             dispatch(addMessage(event));
@@ -56,7 +65,7 @@ export const ProjectStop: React.FC<ProjectStopProps> = ({ project }) => {
       setLoading(false);
       remoteListener();
     });
-  }, [dispatch, eventSource, project.id]);
+  }, [dispatch, eventSource, project.id, project.name, toaster]);
 
   return (
     <>

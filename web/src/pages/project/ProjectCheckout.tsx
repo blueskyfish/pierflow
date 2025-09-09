@@ -11,7 +11,7 @@ import {
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
-import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
+import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -32,6 +32,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const eventSource = useEventSource();
+  const toaster = useToast();
 
   // load the branch list if not already loaded
   const loadBranchList = React.useCallback(() => {
@@ -55,6 +56,12 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
             dispatch(addMessage(event));
             removeListener();
             setLoading(false);
+            toaster.add({
+              state: 'error',
+              title: 'Checkout',
+              message: `Failed to load branch list from project ${project.name} repository`,
+              timeout: 3_000,
+            });
             return;
           default:
             dispatch(addMessage(event));
@@ -71,7 +78,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
     });
 
     return removeListener;
-  }, [dispatch, eventSource, project, refresh]);
+  }, [dispatch, eventSource, project.id, project.name, refresh, toaster]);
 
   const checkoutBranchRepositor = useCallback(
     (branch: string, place: string) => {
@@ -89,11 +96,23 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
               }
               removeListener();
               setLoading(false);
+              toaster.add({
+                state: 'success',
+                title: 'Checkout',
+                message: `Branch ${branch} is checked out from project ${project.name} repository`,
+                timeout: 3_000,
+              });
               return;
             case EventStatus.Error:
               dispatch(addMessage(event));
               removeListener();
               setLoading(false);
+              toaster.add({
+                state: 'error',
+                title: 'Checkout',
+                message: `Failed to checkout branch ${branch} from project ${project.name} repository`,
+                timeout: 3_000,
+              });
               return;
             default:
               dispatch(addMessage(event));
@@ -114,7 +133,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
         if (removeListener) removeListener();
       };
     },
-    [dispatch, eventSource, project.id],
+    [dispatch, eventSource, project.id, project.name, toaster],
   );
 
   useEffect(() => {

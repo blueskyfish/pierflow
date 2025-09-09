@@ -9,7 +9,7 @@ export interface ToastContainerProps {
 
 export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemove }) => {
   return (
-    <div className={'toast'}>
+    <div className={'toast z-50 max-w-1/5'}>
       {(toasts ?? []).map((toast) => (
         <Toast key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
