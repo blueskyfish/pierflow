@@ -1,12 +1,16 @@
 import { createSlice, type MiddlewareAPI, type PayloadAction } from '@reduxjs/toolkit';
-import { type BranchDto, fetchProjectList, type ProjectDto } from '@blueskyfish/pierflow/api';
-import { loadProjectList, ProjectFeatureKey, type ProjectState } from '@blueskyfish/pierflow/stores';
+import { type BranchDto, fetchProjectDetails, fetchProjectList, type ProjectDto } from '@blueskyfish/pierflow/api';
+import {
+  loadProjectDetails,
+  loadProjectList,
+  ProjectFeatureKey,
+  type ProjectState,
+} from '@blueskyfish/pierflow/stores';
 import {
   reduceUpdateBranchList,
   reduceUpdateProjectBranch,
   reduceUpdateProjectDetail,
   reduceUpdateProjectList,
-  reduceUpdateProjectTaskfileList,
 } from './project.reducing.ts';
 
 export const projectSlice = createSlice({
@@ -40,25 +44,12 @@ export const projectSlice = createSlice({
       const { projectId, branch } = action.payload;
       return reduceUpdateProjectBranch(state, projectId, branch);
     },
-    updateProjectTaskfileList: (
-      state: ProjectState,
-      action: PayloadAction<{ projectId: string; taskfileList: string[] }>,
-    ) => {
-      const { projectId, taskfileList } = action.payload;
-      return reduceUpdateProjectTaskfileList(state, projectId, taskfileList);
-    },
   },
 });
 
 // Exports the actions
-export const {
-  updateSelectedId,
-  updateProjectDetail,
-  updateProjectList,
-  updateBranchList,
-  updateProjectBranch,
-  updateProjectTaskfileList,
-} = projectSlice.actions;
+export const { updateSelectedId, updateProjectDetail, updateProjectList, updateBranchList, updateProjectBranch } =
+  projectSlice.actions;
 
 // Exports the reducer
 export const projectReducer = projectSlice.reducer;
@@ -73,6 +64,12 @@ export const projectMiddleware =
     if (loadProjectList.match(action)) {
       const list = await fetchProjectList();
       dispatch(updateProjectList(list));
+      return;
+    }
+    if (loadProjectDetails.match(action)) {
+      const projectId = action.payload;
+      const project = await fetchProjectDetails(projectId);
+      dispatch(updateProjectDetail(project));
       return;
     }
     return next(action);

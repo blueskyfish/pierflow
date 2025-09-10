@@ -7,6 +7,7 @@ import {
   addEventMessager,
   addMessage,
   EventStatus,
+  loadProjectDetails,
   ProjectCommand,
   setError,
   toEventType,
@@ -40,6 +41,7 @@ export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {
               title: 'Pull',
               message: `Pull operation completed successfully for project ${project.name} and ${branch}.`,
             });
+            dispatch(loadProjectDetails(project.id)); // reload project details to reset the branch if necessary
           }
           remoteListener();
           return;

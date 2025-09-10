@@ -7,6 +7,7 @@ import {
   addEventMessager,
   addMessage,
   EventStatus,
+  loadProjectDetails,
   ProjectCommand,
   type ServerEvent,
   toEventType,
@@ -40,6 +41,7 @@ export const ProjectStart: React.FC<ProjectStartProps> = ({ project }) => {
               title: 'Start',
               message: `Start operation completed successfully for project ${project.name}.`,
             });
+            dispatch(loadProjectDetails(project.id)); // reload project details to reset the branch if necessary
             return;
           case EventStatus.Error:
             dispatch(addMessage(event));

@@ -2,6 +2,7 @@ import {
   addEventMessager,
   addMessage,
   EventStatus,
+  loadProjectDetails,
   ProjectCommand,
   type ServerEvent,
   setError,
@@ -102,6 +103,7 @@ export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {
                 message: `Branch ${branch} is checked out from project ${project.name} repository`,
                 timeout: 3_000,
               });
+              dispatch(loadProjectDetails(project.id)); // reload project details to reset the branch if necessary
               return;
             case EventStatus.Error:
               dispatch(addMessage(event));
