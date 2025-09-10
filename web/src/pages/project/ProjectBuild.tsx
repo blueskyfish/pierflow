@@ -7,6 +7,7 @@ import {
   addEventMessager,
   addMessage,
   EventStatus,
+  loadProjectDetails,
   ProjectCommand,
   type ServerEvent,
   setError,
@@ -55,7 +56,7 @@ export const ProjectBuild: React.FC<ProjectBuildProps> = ({ project }) => {
               message: `Build operation completed successfully for project ${project.name}.`,
               timeout: 3_000,
             });
-            // TODO reload project details
+            dispatch(loadProjectDetails(project.id)); // reload project details to reset the branch if necessary
             return;
           case EventStatus.Error:
             dispatch(addMessage(event));

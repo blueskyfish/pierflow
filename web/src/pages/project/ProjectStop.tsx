@@ -7,6 +7,7 @@ import {
   addEventMessager,
   addMessage,
   EventStatus,
+  loadProjectDetails,
   ProjectCommand,
   type ServerEvent,
   setError,
@@ -42,6 +43,7 @@ export const ProjectStop: React.FC<ProjectStopProps> = ({ project }) => {
               title: 'Stop',
               message: `Stop operation completed successfully for project ${project.name}.`,
             });
+            dispatch(loadProjectDetails(project.id)); // reload project details to reset the branch if necessary
             return;
           case EventStatus.Error:
             dispatch(addMessage(event));

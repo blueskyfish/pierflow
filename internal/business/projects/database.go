@@ -58,6 +58,20 @@ func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, toProjectResponse(&project))
 }
 
+func (pm *ProjectManager) GetProjectDetail(ctx echo.Context) error {
+	projectId := ctx.Param("id")
+	if projectId == "" {
+		return ctx.JSON(http.StatusBadRequest, &ErrorResponse{Message: "Project ID is required"})
+	}
+
+	project := pm.findProjectById(projectId)
+	if project == nil {
+		return ctx.JSON(http.StatusNotFound, &ErrorResponse{Message: "Project not found"})
+	}
+
+	return ctx.JSON(http.StatusOK, toProjectResponse(project))
+}
+
 func (pm *ProjectManager) findProjectById(projectId string) *DbProject {
 	var project DbProject
 	if err := pm.db.Find(&project, "id = ?", projectId).Error; err != nil {

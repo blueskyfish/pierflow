@@ -22,6 +22,7 @@ func registerEndpoints(pm *projects.ProjectManager, sm *business.SystemManager, 
 	// Manage Projects
 	group.GET("/projects", pm.GetProjectList)
 	group.POST("/projects", pm.CreateProject)
+	group.GET("/projects/:id", pm.GetProjectDetail)
 
 	// Manages Project Commands
 	group.PUT("/projects/:id/clone", pm.CloneRepositoryProject)
