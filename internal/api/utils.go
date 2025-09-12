@@ -42,6 +42,6 @@ func checkBasePathAndCreatePathIfNecessary(basePath string) string {
 	} else if !stat.IsDir() {
 		logger.Error("base path is not a directory")
 	}
-	logger.Debugf("git base path is set to '%s'", basePath)
+	logger.Debugf("base path is set to '%s'", basePath)
 	return basePath
 }
