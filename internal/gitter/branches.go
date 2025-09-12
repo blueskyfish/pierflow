@@ -2,11 +2,12 @@ package gitter
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"path/filepath"
+
+	"github.com/blueskyfish/pierflow/internal/errors"
 	"github.com/blueskyfish/pierflow/internal/eventer"
 	"github.com/blueskyfish/pierflow/internal/logger"
-	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -51,7 +52,7 @@ func StringBranchPlace(s string) (BranchPlace, error) {
 	case BranchPlaceRemoteName:
 		return BranchPlaceRemote, nil
 	default:
-		return BranchPlaceUnknown, errors.New("unknown branch place")
+		return BranchPlaceUnknown, errors.NewFromText("unknown branch place")
 	}
 }
 
@@ -96,7 +97,7 @@ func (g *gitClient) runBranchList(o *BranchOptions, messager eventer.Messager) {
 			Prune:    o.Prune,
 			Progress: messager,
 		})
-		if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
+		if err != nil && !errors.IsErr(err, git.NoErrAlreadyUpToDate) {
 			messager.Send(eventer.StatusError, err.Error())
 			return
 		}

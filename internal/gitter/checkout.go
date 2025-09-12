@@ -2,9 +2,10 @@ package gitter
 
 import (
 	"fmt"
+	"path/filepath"
+
 	"github.com/blueskyfish/pierflow/internal/eventer"
 	"github.com/blueskyfish/pierflow/internal/logger"
-	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"

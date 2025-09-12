@@ -1,11 +1,12 @@
 package projects
 
 import (
-	"errors"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/blueskyfish/pierflow/internal/errors"
 )
 
 const (
@@ -20,7 +21,7 @@ const (
 
 func (pm *ProjectManager) listTaskFiles(p *DbProject) ([]string, error) {
 	if p == nil {
-		return nil, errors.New("project is nil")
+		return nil, errors.NewFromText("project is nil")
 	}
 
 	var fileList []string

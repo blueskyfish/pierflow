@@ -2,8 +2,8 @@ package docker
 
 import (
 	"context"
-	"errors"
 
+	"github.com/blueskyfish/pierflow/internal/errors"
 	"github.com/blueskyfish/pierflow/internal/logger"
 
 	"github.com/moby/moby/api/types/events"
@@ -30,7 +30,7 @@ func NewComposeClient(actionFilters []events.Action) ComposeClient {
 
 func (c *composeClient) Listen(ctx context.Context, eventChan chan<- ComposeEvent) error {
 	if ctx == nil {
-		return errors.New("context is required")
+		return errors.NewFromText("context is required")
 	}
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {

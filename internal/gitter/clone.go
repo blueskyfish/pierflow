@@ -2,10 +2,11 @@ package gitter
 
 import (
 	"context"
-	"github.com/blueskyfish/pierflow/internal/eventer"
-	"github.com/blueskyfish/pierflow/internal/logger"
 	"os"
 	"path/filepath"
+
+	"github.com/blueskyfish/pierflow/internal/eventer"
+	"github.com/blueskyfish/pierflow/internal/logger"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"

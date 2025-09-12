@@ -1,11 +1,12 @@
 package eventer
 
 import (
-	"github.com/blueskyfish/pierflow/internal/business/utils"
-	"github.com/blueskyfish/pierflow/internal/logger"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/blueskyfish/pierflow/internal/business/utils"
+	"github.com/blueskyfish/pierflow/internal/logger"
 )
 
 const (
