@@ -2,7 +2,8 @@ package serve
 
 import (
 	"embed"
-	"pierflow/internal/api"
+
+	"github.com/blueskyfish/pierflow/internal/api"
 
 	"github.com/spf13/cobra"
 )

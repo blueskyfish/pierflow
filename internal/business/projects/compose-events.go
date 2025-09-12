@@ -2,8 +2,8 @@ package projects
 
 import (
 	"context"
-	"pierflow/internal/docker"
-	"pierflow/internal/logger"
+	"github.com/blueskyfish/pierflow/internal/docker"
+	"github.com/blueskyfish/pierflow/internal/logger"
 )
 
 // ListenForComposeEvents starts listening for Docker Compose events and handles them.

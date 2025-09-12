@@ -1,4 +1,4 @@
-module pierflow
+module github.com/blueskyfish/pierflow
 
 go 1.24
 

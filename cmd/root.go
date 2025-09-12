@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"pierflow/cmd/serve"
+	"github.com/blueskyfish/pierflow/cmd/serve"
 
 	"github.com/spf13/cobra"
 )

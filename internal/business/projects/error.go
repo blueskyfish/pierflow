@@ -2,7 +2,7 @@ package projects
 
 import (
 	"fmt"
-	"pierflow/internal/business/errors"
+	"github.com/blueskyfish/pierflow/internal/business/errors"
 
 	"github.com/labstack/echo/v4"
 )

@@ -2,10 +2,10 @@ package gitter
 
 import (
 	"context"
+	"github.com/blueskyfish/pierflow/internal/eventer"
+	"github.com/blueskyfish/pierflow/internal/logger"
 	"os"
 	"path/filepath"
-	"pierflow/internal/eventer"
-	"pierflow/internal/logger"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -71,6 +71,6 @@ func (g *gitClient) runClone(o *CloneOptions, messager eventer.Messager) {
 		return
 	}
 	logger.Infof("cloned repository successfully into '%s' with head '%s'", repositoryPath, head.String())
-	
+
 	messager.Send(eventer.StatusSuccess, toBranch(head, true))
 }

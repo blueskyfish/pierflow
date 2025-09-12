@@ -18,9 +18,9 @@ defined as constants.
 package projects
 
 import (
-	"pierflow/internal/business/projects"
-	"pierflow/internal/business/utils"
-	"pierflow/internal/eventer"
+	"github.com/blueskyfish/pierflow/internal/business/projects"
+	"github.com/blueskyfish/pierflow/internal/business/utils"
+	"github.com/blueskyfish/pierflow/internal/eventer"
 
 	"github.com/labstack/echo/v4"
 )

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"pierflow/internal/logger"
+	"github.com/blueskyfish/pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

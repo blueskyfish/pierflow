@@ -1,7 +1,7 @@
 package gitter
 
 import (
-	"pierflow/internal/helper"
+	"github.com/blueskyfish/pierflow/internal/helper"
 
 	"github.com/go-git/go-git/v5/plumbing"
 )
