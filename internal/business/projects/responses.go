@@ -1,21 +1,5 @@
 package projects
 
-import (
-	"fmt"
-)
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
-
-func toErrorResponse(message string) *ErrorResponse {
-	return &ErrorResponse{Message: message}
-}
-
-func toErrorResponseF(format string, args ...any) *ErrorResponse {
-	return toErrorResponse(fmt.Sprintf(format, args...))
-}
-
 type ProjectResponse struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`

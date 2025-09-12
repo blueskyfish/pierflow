@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 	"pierflow/internal/business/utils"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
@@ -12,7 +13,7 @@ import (
 func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	projectId := ctx.Param("id")
@@ -20,11 +21,11 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Not found project"))
 	}
 
 	if err := verifier.VerifyStatus(CommandBranchList, project.Status); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
 	// build the branch options
@@ -38,7 +39,7 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 
 	messager := pm.eventServe.WithMessage(CommandBranchList.Message(), userId, project.ID, nil)
 	if messager == nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create messager"))
 	}
 
 	// get the branch list
@@ -51,21 +52,21 @@ func (pm *ProjectManager) GetProjectBranchList(ctx echo.Context) error {
 func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	projectId := ctx.Param("id")
 	var payload CheckoutPayload
 	if err := ctx.Bind(&payload); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid payload for project '%s'", projectId))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Invalid payload for project '%s'", projectId))
 	}
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Not found project"))
 	}
 	if err := verifier.VerifyStatus(CommandCheckoutRepository, project.Status); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 	logger.Infof("Checkout project '%s' branch '%s'", project.Name, payload.Branch)
 
@@ -76,12 +77,12 @@ func (pm *ProjectManager) CheckoutProjectBranch(ctx echo.Context) error {
 			logger.Warnf("Invalid branch data after checkout for project '%s' => %v", project.Name, err)
 			return
 		}
-		if err = pm.updateProjectWith(project, StatusCheckedOut, result.Branch); err != nil {
+		if err = pm.updateProjectWith(project, StatusCheckedOut, result.Branch, CommandCheckoutRepository.Event()); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCheckedOut, err.Error())
 		}
 	})
 	if messager == nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create messager"))
 	}
 
 	// check out the branch

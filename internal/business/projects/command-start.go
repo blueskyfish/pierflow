@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 	"pierflow/internal/business/utils"
 	"pierflow/internal/logger"
 
@@ -10,12 +11,11 @@ import (
 
 // StartProject starts the project using the specified task file.
 //
-// The payload TaskFileProjectPayload includes the task file to be used for the start process and a message.
 // The query parameter "force" can be used to force the start even if the project status is not suitable for starting.
 func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	project, force, pErr := pm.prepareProjectTask(ctx, CommandStartProject)
@@ -29,10 +29,13 @@ func (pm *ProjectManager) StartProject(ctx echo.Context) error {
 
 	messager := pm.eventServe.WithMessage(CommandStartProject.Message(), userId, project.ID, func(data interface{}) {
 		logger.Infof("[%s] finished with %s", project.Name, data.(string))
-		if err := pm.updateProjectStatus(project, StatusRun); err != nil {
+		if err := pm.updateProjectStatus(project, StatusRun, CommandStartProject.Event()); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusRun, err.Error())
 		}
 	})
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create messager"))
+	}
 
 	taskfile := project.Taskfile
 	if taskfile == "" {

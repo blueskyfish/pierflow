@@ -25,6 +25,6 @@ func (pm *ProjectManager) ListenForComposeEvents() error {
 func (pm *ProjectManager) runListenForComposeEvents(eventChan <-chan docker.ComposeEvent) {
 	for event := range eventChan {
 		logger.Infof("Received compose event: %+v", event)
-		// Here you can handle the event as needed, e.g., update project status, log it, etc.
+		// which project does this event belong to?
 	}
 }

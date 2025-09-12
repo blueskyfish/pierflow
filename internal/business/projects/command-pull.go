@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 	"pierflow/internal/business/utils"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
@@ -12,18 +13,18 @@ import (
 func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	projectId := ctx.Param("id")
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("DbProject not found"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("DbProject not found"))
 	}
 
 	if err := verifier.VerifyStatus(CommandPullRepository, project.Status); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
 	messager := pm.eventServe.WithMessage(CommandPullRepository.Message(), userId, project.ID, func(data interface{}) {
@@ -35,12 +36,12 @@ func (pm *ProjectManager) GetProjectBranchPull(ctx echo.Context) error {
 		}
 		logger.Infof("[%s] finished with branch %s", project.Name, result.Branch)
 		// update the project branch and status
-		if err := pm.updateProjectWith(project, StatusPulled, result.Branch); err != nil {
+		if err := pm.updateProjectWith(project, StatusPulled, result.Branch, CommandPullRepository.Event()); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusPulled, err.Error())
 		}
 	})
 	if messager == nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create messager"))
 	}
 
 	// pull the repository

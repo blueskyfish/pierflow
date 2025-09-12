@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,11 +18,11 @@ func (pm *ProjectManager) ProjectEventConnect(ctx echo.Context) error {
 func (pm *ProjectManager) ProjectEventPing(ctx echo.Context) error {
 	userId := ctx.Param("id")
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("user is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("user is required"))
 	}
 	err := pm.eventServe.Send(userId, "", "ping")
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponse(err.Error()))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse(err.Error()))
 	}
 	return ctx.String(http.StatusNoContent, "")
 }

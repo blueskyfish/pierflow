@@ -2,6 +2,8 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
+	"pierflow/internal/business/utils"
 	"pierflow/internal/logger"
 	"time"
 
@@ -12,7 +14,7 @@ import (
 func (pm *ProjectManager) GetProjectList(ctx echo.Context) error {
 	var projects []DbProject
 	if err := pm.db.Find(&projects).Error; err != nil {
-		return ctx.JSON(http.StatusInternalServerError, &ErrorResponse{Message: "Failed to retrieve projects"})
+		return ctx.JSON(http.StatusInternalServerError, errors.ToErrorResponse("Failed to retrieve projects"))
 	}
 
 	var list []*ProjectResponse
@@ -30,7 +32,7 @@ func (pm *ProjectManager) GetProjectList(ctx echo.Context) error {
 func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 	var payload CreatePayload
 	if err := ctx.Bind(&payload); err != nil {
-		return ctx.JSON(http.StatusBadRequest, &ErrorResponse{Message: "DbProject payload is invalid"})
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("DbProject payload is invalid"))
 	}
 	now := time.Now().UTC()
 
@@ -49,10 +51,16 @@ func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 	}
 
 	err := pm.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Create(&project).Error
+		// Create the project
+		err := tx.Create(&project).Error
+		if err != nil {
+			return err
+		}
+		// Create an event for the project creation
+		return pm.createEvent(tx, &project, CommandCreateProject.Event())
 	})
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, &ErrorResponse{Message: "Failed to create project"})
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create project"))
 	}
 
 	return ctx.JSON(http.StatusCreated, toProjectResponse(&project))
@@ -61,12 +69,12 @@ func (pm *ProjectManager) CreateProject(ctx echo.Context) error {
 func (pm *ProjectManager) GetProjectDetail(ctx echo.Context) error {
 	projectId := ctx.Param("id")
 	if projectId == "" {
-		return ctx.JSON(http.StatusBadRequest, &ErrorResponse{Message: "Project ID is required"})
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Project ID is required"))
 	}
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, &ErrorResponse{Message: "Project not found"})
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Project not found"))
 	}
 
 	return ctx.JSON(http.StatusOK, toProjectResponse(project))
@@ -81,19 +89,54 @@ func (pm *ProjectManager) findProjectById(projectId string) *DbProject {
 	return &project
 }
 
-func (pm *ProjectManager) updateProjectStatus(p *DbProject, status ProjectStatus) error {
+func (pm *ProjectManager) updateProjectStatus(p *DbProject, status ProjectStatus, eventName string) error {
 	return pm.db.Transaction(func(tx *gorm.DB) error {
 		p.Status = status
-		p.Modified = time.Now().UTC().Unix()
-		return tx.Save(p).Error
+		p.Modified = tx.NowFunc().Unix()
+		err := tx.Save(p).Error
+		if err != nil {
+			logger.Warnf("DbProject with ID '%s' not found: %s", p.ID, err.Error())
+			return err
+		}
+
+		// Create an event for the project status update
+		return pm.createEvent(tx, p, eventName)
 	})
 }
 
-func (pm *ProjectManager) updateProjectWith(p *DbProject, status ProjectStatus, branch string) error {
+func (pm *ProjectManager) updateProjectWith(p *DbProject, status ProjectStatus, branch, eventName string) error {
 	return pm.db.Transaction(func(tx *gorm.DB) error {
+		// Update the project status and branch
 		p.Status = status
 		p.Branch = branch
-		p.Modified = time.Now().UTC().Unix()
-		return tx.Save(p).Error
+		p.Modified = tx.NowFunc().Unix()
+		err := tx.Save(p).Error
+		if err != nil {
+			logger.Warnf("DbProject with ID '%s' not found: %s", p.ID, err.Error())
+			return err
+		}
+		// Create an event for the project update
+		return pm.createEvent(tx, p, eventName)
 	})
+}
+
+func (pm *ProjectManager) createEvent(tx *gorm.DB, p *DbProject, eventName string) error {
+
+	// JSON serialize the project
+	value, err := utils.Stringify(p)
+	if err != nil {
+		logger.Warnf("DbProject with ID '%s' is invalid: %s", p.ID, err.Error())
+		return err
+	}
+
+	//
+	dbEvent := DbEvent{
+		ID:        "",
+		Group:     "project",
+		Event:     eventName,
+		ValueID:   p.ID,
+		Value:     value,
+		Timestamp: tx.NowFunc().Unix(),
+	}
+	return tx.Create(&dbEvent).Error
 }
