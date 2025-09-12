@@ -30,7 +30,8 @@ type ProjectManager struct {
 //
 // The database is under the specified `dbPath` within the `basePath`.
 // The `basePath` is the root directory where all project repositories will be managed.
-func NewProjectManager(basePath, dbPath string) (*ProjectManager, error) {
+// The `dockerActions` parameter specifies which Docker actions to listen for.
+func NewProjectManager(basePath, dbPath string, dockerActions []events.Action) (*ProjectManager, error) {
 	db, err := gorm.Open(sqlite.Open(path.Join(basePath, dbPath)), &gorm.Config{})
 
 	if err != nil {
@@ -54,17 +55,11 @@ func NewProjectManager(basePath, dbPath string) (*ProjectManager, error) {
 	}
 
 	return &ProjectManager{
-		db:         db,
-		basePath:   basePath,
-		gitClient:  gitter.NewGitClient(basePath),
-		taskClient: tasker.NewTaskClient(basePath),
-		eventServe: eventer.NewEventServe(),
-		composeClient: docker.NewComposeClient([]events.Action{
-			events.ActionStart,
-			events.ActionRestart,
-			events.ActionStop,
-			events.ActionDie,
-			events.ActionKill,
-		}),
+		db:            db,
+		basePath:      basePath,
+		gitClient:     gitter.NewGitClient(basePath),
+		taskClient:    tasker.NewTaskClient(basePath),
+		eventServe:    eventer.NewEventServe(),
+		composeClient: docker.NewComposeClient(dockerActions),
 	}, nil
 }

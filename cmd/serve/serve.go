@@ -20,15 +20,17 @@ var CommandServe = &cobra.Command{
 		host, _ := cmd.Flags().GetString("host")
 		dbPath, _ := cmd.Flags().GetString("db-path")
 		log, _ := cmd.Flags().GetString("log")
+		dockerActions, _ := cmd.Flags().GetString("docker-actions")
 		basePath, _ := cmd.Flags().GetString("base-path")
 
 		options := api.ServerConfig{
-			Port:     port,
-			Host:     host,
-			DbPath:   dbPath,
-			Log:      log,
-			BasePath: basePath,
-			Web:      &web,
+			Port:          port,
+			Host:          host,
+			DbPath:        dbPath,
+			Log:           log,
+			BasePath:      basePath,
+			DockerActions: parseActions(dockerActions),
+			Web:           &web,
 		}
 
 		return api.StartApiServer(&options)
@@ -40,5 +42,6 @@ func init() {
 	CommandServe.PersistentFlags().String("log", "info", "Log level for the server (debug, info, warn, error, fatal, panic)")
 	CommandServe.PersistentFlags().String("host", "localhost", "Host to bind the server to")
 	CommandServe.PersistentFlags().String("db-path", "pierflow.db", "Path to the database file")
+	CommandServe.PersistentFlags().String("docker-actions", "start,stop,restart", "Comma-separated list of Docker actions to listen for (e.g., create,start,stop,restart,die)")
 	CommandServe.PersistentFlags().String("base-path", ".", "Base path for the git repositories and the database file")
 }
