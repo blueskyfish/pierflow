@@ -2,12 +2,14 @@ package projects
 
 import (
 	"path"
+	"pierflow/internal/docker"
 	"pierflow/internal/eventer"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
 	"pierflow/internal/tasker"
 
 	"github.com/glebarez/sqlite"
+	"github.com/moby/moby/api/types/events"
 	"gorm.io/gorm"
 )
 
@@ -16,11 +18,12 @@ const DbMaxOpenConnections = 100 // Maximum number of open connections to the da
 const DbConnMaxLifetime = 0      // Maximum amount of time a connection may be reused
 
 type ProjectManager struct {
-	db         *gorm.DB           // Database connection
-	basePath   string             // Base path for all projects
-	gitClient  gitter.GitClient   // Git client for repository operations
-	taskClient tasker.TaskClient  // Task client for task operations
-	eventServe eventer.EventServe // Event serve for event operations with server-sent events
+	db            *gorm.DB             // Database connection
+	basePath      string               // Base path for all projects
+	gitClient     gitter.GitClient     // Git client for repository operations
+	taskClient    tasker.TaskClient    // Task client for task operations
+	eventServe    eventer.EventServe   // Event serve for event operations with server-sent events
+	composeClient docker.ComposeClient // Docker Compose client for docker events
 }
 
 // NewProjectManager creates a new instance of ProjectManager.
@@ -56,5 +59,12 @@ func NewProjectManager(basePath, dbPath string) (*ProjectManager, error) {
 		gitClient:  gitter.NewGitClient(basePath),
 		taskClient: tasker.NewTaskClient(basePath),
 		eventServe: eventer.NewEventServe(),
+		composeClient: docker.NewComposeClient([]events.Action{
+			events.ActionStart,
+			events.ActionRestart,
+			events.ActionStop,
+			events.ActionDie,
+			events.ActionKill,
+		}),
 	}, nil
 }

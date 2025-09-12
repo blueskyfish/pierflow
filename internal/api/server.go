@@ -70,8 +70,13 @@ func StartApiServer(config *ServerConfig) error {
 	if err != nil {
 		return fmt.Errorf("failed to registerEndpoints API endpoints: %w", err)
 	}
+	
+	err = pm.ListenForComposeEvents()
+	if err != nil {
+		return fmt.Errorf("failed to start listening for compose events: %w", err)
+	}
 
-	// Listening for exist signal
+	// Listening for exit signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	go listenForExit(quit)
