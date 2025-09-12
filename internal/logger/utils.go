@@ -1,9 +1,10 @@
 package logger
 
 import (
-	"errors"
 	"log/slog"
 	"os"
+
+	"github.com/blueskyfish/pierflow/internal/errors"
 )
 
 func checkLogger() {
@@ -21,6 +22,6 @@ func initLogLevel(level LogLevel) error {
 		checkLogger()
 		return nil
 	default:
-		return errors.New("invalid log level")
+		return errors.NewFromText("invalid log level")
 	}
 }

@@ -2,7 +2,7 @@ package docker
 
 import "github.com/moby/moby/api/types/events"
 
-// ComposeEvent represents a Docker Compose related event with relevant details.
+// ComposeEvent represents a Docker Compose related-event with relevant details.
 //
 // It transforms from a event.Message from Docker SDK to a more convenient structure for Compose events
 // with toComposeEvent function.

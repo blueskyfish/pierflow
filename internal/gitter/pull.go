@@ -2,10 +2,11 @@ package gitter
 
 import (
 	"context"
-	"errors"
+	"path/filepath"
+
+	"github.com/blueskyfish/pierflow/internal/errors"
 	"github.com/blueskyfish/pierflow/internal/eventer"
 	"github.com/blueskyfish/pierflow/internal/logger"
-	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -68,7 +69,7 @@ func (g *gitClient) runPull(o *PullOptions, messager eventer.Messager) {
 		Force:         true,
 		SingleBranch:  true,
 	})
-	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
+	if err != nil && !errors.IsErr(err, git.NoErrAlreadyUpToDate) {
 		messager.Send(eventer.StatusError, err.Error())
 		return
 	}

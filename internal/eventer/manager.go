@@ -2,13 +2,14 @@ package eventer
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/blueskyfish/pierflow/internal/business/utils"
-	"github.com/blueskyfish/pierflow/internal/logger"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/blueskyfish/pierflow/internal/business/utils"
+	"github.com/blueskyfish/pierflow/internal/errors"
+	"github.com/blueskyfish/pierflow/internal/logger"
 
 	"github.com/labstack/echo/v4"
 )
@@ -55,7 +56,7 @@ func (es *eventServe) Send(userId, message, data string) error {
 			return nil
 		}
 	}
-	return errors.New(fmt.Sprintf("user '%s' not found", userId))
+	return errors.NewFromFormat("user '%s' not found", userId)
 }
 
 func (es *eventServe) Listen(ctx echo.Context) error {

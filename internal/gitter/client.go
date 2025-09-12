@@ -1,8 +1,9 @@
 package gitter
 
 import (
-	"github.com/blueskyfish/pierflow/internal/eventer"
 	"sync"
+
+	"github.com/blueskyfish/pierflow/internal/eventer"
 )
 
 type GitClient interface {
