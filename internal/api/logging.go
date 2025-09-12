@@ -1,9 +1,10 @@
 package api
 
 import (
+	"pierflow/internal/logger"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"pierflow/internal/logger"
 )
 
 func loggingRequestFunc(ctx echo.Context, v middleware.RequestLoggerValues) error {

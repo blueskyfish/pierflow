@@ -14,7 +14,7 @@ var CommandServe = &cobra.Command{
 	Use:     "serve",
 	Short:   "Start the Pierflow server",
 	Long:    `Start the Pierflow server to manage your docker workflow and provide API access.`,
-	Example: `pierflow server --port=8080 --host=localhost --dbPath=pierflow.db --log=info --base-path=/path/to/repositories`,
+	Example: `pierflow server --port=8080 --host=localhost --db-path=pierflow.db --log=info --base-path=/path/to/repositories`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		port, _ := cmd.Flags().GetInt("port")
 		host, _ := cmd.Flags().GetString("host")

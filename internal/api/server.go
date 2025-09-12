@@ -20,7 +20,7 @@ func StartApiServer(config *ServerConfig) error {
 		return err
 	}
 
-	// Initialize logger with the specified log level
+	// Initialize the logger with the specified log level
 	err = logger.InitLogLevel(logLevel)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func StartApiServer(config *ServerConfig) error {
 	if err != nil {
 		return fmt.Errorf("failed to registerEndpoints API endpoints: %w", err)
 	}
-	
+
 	err = pm.ListenForComposeEvents()
 	if err != nil {
 		return fmt.Errorf("failed to start listening for compose events: %w", err)
