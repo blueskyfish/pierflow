@@ -1,6 +1,6 @@
 package main
 
-import "pierflow/cmd"
+import "github.com/blueskyfish/pierflow/cmd"
 
 // main is the entry point of the application.
 // It executes the root command defined in cmd package.
