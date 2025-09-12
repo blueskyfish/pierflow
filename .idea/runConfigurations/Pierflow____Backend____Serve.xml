@@ -2,7 +2,7 @@
   <configuration default="false" name="Pierflow :: Backend :: Serve" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="Pierflow (Cat on Pier)" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="serve --port=58080 --host=localhost --base-path=var/projects --log=debug" />
+    <parameters value="serve --port=58080 --host=localhost --base-path=var/projects --log=debug --docker-actions=start,restart,stop" />
     <kind value="PACKAGE" />
     <package value="pierflow" />
     <directory value="$PROJECT_DIR$" />

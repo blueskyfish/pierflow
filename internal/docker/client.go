@@ -19,8 +19,9 @@ type composeClient struct {
 
 // NewComposeClient creates a new ComposeClient with optional action filters.
 //
-// If actionFilters is empty, all compose events are listened to.
+// If actionFilters is empty, all compose-events are listened to.
 func NewComposeClient(actionFilters []events.Action) ComposeClient {
+	logger.Infof("Create compose client with action filters: %v", actionFilters)
 	return &composeClient{
 		actionFilters: actionFilters,
 	}

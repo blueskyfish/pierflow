@@ -33,7 +33,7 @@ func StartApiServer(config *ServerConfig) error {
 	)
 
 	// DbProject manager
-	pm, err := projects.NewProjectManager(basePath, config.DbPath)
+	pm, err := projects.NewProjectManager(basePath, config.DbPath, config.DockerActions)
 	if err != nil {
 		return fmt.Errorf("failed to initialize project manager: %w", err)
 	}
