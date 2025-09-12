@@ -1,7 +1,7 @@
 package gitter
 
 import (
-	"pierflow/internal/eventer"
+	"github.com/blueskyfish/pierflow/internal/eventer"
 	"sync"
 )
 

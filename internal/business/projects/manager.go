@@ -1,12 +1,12 @@
 package projects
 
 import (
+	"github.com/blueskyfish/pierflow/internal/docker"
+	"github.com/blueskyfish/pierflow/internal/eventer"
+	"github.com/blueskyfish/pierflow/internal/gitter"
+	"github.com/blueskyfish/pierflow/internal/logger"
+	"github.com/blueskyfish/pierflow/internal/tasker"
 	"path"
-	"pierflow/internal/docker"
-	"pierflow/internal/eventer"
-	"pierflow/internal/gitter"
-	"pierflow/internal/logger"
-	"pierflow/internal/tasker"
 
 	"github.com/glebarez/sqlite"
 	"github.com/moby/moby/api/types/events"

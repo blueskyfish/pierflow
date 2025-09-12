@@ -1,7 +1,7 @@
 package tasker
 
 import (
-	"pierflow/internal/eventer"
+	"github.com/blueskyfish/pierflow/internal/eventer"
 )
 
 type TaskClient interface {

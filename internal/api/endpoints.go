@@ -2,8 +2,8 @@ package api
 
 import (
 	"errors"
-	"pierflow/internal/business"
-	"pierflow/internal/business/projects"
+	"github.com/blueskyfish/pierflow/internal/business"
+	"github.com/blueskyfish/pierflow/internal/business/projects"
 
 	"github.com/labstack/echo/v4"
 )

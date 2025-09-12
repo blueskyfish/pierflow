@@ -1,4 +1,3 @@
-
 ![Pierflow Logo](logo.png)
 
 > Microsoft Designer AI with *A cat on the pier with a flag in the hand.
@@ -31,4 +30,10 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
+
+## Installation
+
+```bash
+go get github.com/blueskyfish/pierflow
 ```

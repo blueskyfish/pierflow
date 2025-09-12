@@ -3,7 +3,8 @@ package docker
 import (
 	"context"
 	"errors"
-	"pierflow/internal/logger"
+
+	"github.com/blueskyfish/pierflow/internal/logger"
 
 	"github.com/moby/moby/api/types/events"
 	"github.com/moby/moby/client"

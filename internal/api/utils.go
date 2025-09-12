@@ -2,8 +2,8 @@ package api
 
 import (
 	"fmt"
+	"github.com/blueskyfish/pierflow/internal/logger"
 	"os"
-	"pierflow/internal/logger"
 )
 
 func logFromString(s string) (logger.LogLevel, error) {
