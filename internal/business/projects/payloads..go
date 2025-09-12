@@ -19,12 +19,6 @@ type CheckoutPayload struct {
 	Message string `json:"message" validate:"required"`
 }
 
-// deprecated: It is removed
-type TaskFileProjectPayload struct {
-	TaskFile string `json:"taskfile" validate:"required"`
-	Message  string `json:"message" validate:"required"`
-}
-
 type ChangeTaskfilePayload struct {
 	Taskfile string `json:"taskfile" validate:"required"`
 }

@@ -2,6 +2,7 @@ package projects
 
 import (
 	"fmt"
+	"pierflow/internal/business/errors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -16,7 +17,7 @@ func (e *ProjectError) Error() string {
 }
 
 func (e *ProjectError) JSON(ctx echo.Context) error {
-	return ctx.JSON(e.Code, toErrorResponse(e.Message))
+	return ctx.JSON(e.Code, errors.ToErrorResponse(e.Message))
 }
 
 func toError(code int, message string) *ProjectError {

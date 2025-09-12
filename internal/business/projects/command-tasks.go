@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 	"pierflow/internal/business/utils"
 
 	"github.com/labstack/echo/v4"
@@ -13,12 +14,12 @@ func (pm *ProjectManager) GetTaskFileList(ctx echo.Context) error {
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Not found project"))
 	}
 
 	taskFiles, err := pm.listTaskFiles(project)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Failed to list task files for project '%s' => %s", project.Name, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Failed to list task files for project '%s' => %s", project.Name, err.Error()))
 	}
 
 	return ctx.JSON(http.StatusOK, taskFiles)
@@ -32,12 +33,12 @@ func (pm *ProjectManager) UpdateTaskfile(ctx echo.Context) error {
 
 	var payload ChangeTaskfilePayload
 	if err := ctx.Bind(&payload); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Invalid payload"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Invalid payload"))
 	}
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Not found project"))
 	}
 
 	err := pm.db.Transaction(func(tx *gorm.DB) error {
@@ -45,7 +46,7 @@ func (pm *ProjectManager) UpdateTaskfile(ctx echo.Context) error {
 		return tx.Save(project).Error
 	})
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to update taskfile"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to update taskfile"))
 	}
 
 	return ctx.JSON(http.StatusOK, toProjectResponse(project))
@@ -55,13 +56,13 @@ func (pm *ProjectManager) UpdateTaskfile(ctx echo.Context) error {
 func (pm *ProjectManager) GetTaskNameList(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	projectId := ctx.Param("id")
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponse("Not found project"))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Not found project"))
 	}
 
 	taskfile := project.Taskfile

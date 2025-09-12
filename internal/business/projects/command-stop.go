@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 	"pierflow/internal/business/utils"
 	"pierflow/internal/logger"
 
@@ -11,7 +12,7 @@ import (
 func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	project, force, pErr := pm.prepareProjectTask(ctx, CommandStopProject)
@@ -25,10 +26,13 @@ func (pm *ProjectManager) StopProject(ctx echo.Context) error {
 
 	messager := pm.eventServe.WithMessage(CommandStopProject.Message(), userId, project.ID, func(data interface{}) {
 		logger.Infof("[%s] finished with %s", project.Name, data.(string))
-		if err := pm.updateProjectStatus(project, StatusStopped); err != nil {
+		if err := pm.updateProjectStatus(project, StatusStopped, CommandStopProject.Event()); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusStopped, err.Error())
 		}
 	})
+	if messager == nil {
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create messager"))
+	}
 
 	taskfile := project.Taskfile
 	if taskfile == "" {

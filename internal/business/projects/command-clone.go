@@ -2,6 +2,7 @@ package projects
 
 import (
 	"net/http"
+	"pierflow/internal/business/errors"
 	"pierflow/internal/business/utils"
 	"pierflow/internal/gitter"
 	"pierflow/internal/logger"
@@ -13,24 +14,24 @@ import (
 func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 	userId := utils.HeaderUser(ctx)
 	if userId == "" {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("User header is required"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("User header is required"))
 	}
 
 	projectId := ctx.Param("id")
 
 	var message CommandPayload
 	if err := ctx.Bind(&message); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid command '%s' payload", CommandCloneRepository.String()))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Invalid command '%s' payload", CommandCloneRepository.String()))
 	}
 
 	project := pm.findProjectById(projectId)
 	if project == nil {
-		return ctx.JSON(http.StatusNotFound, toErrorResponseF("DbProject with id '%s' not found", projectId))
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponseF("DbProject with id '%s' not found", projectId))
 	}
 	logger.Infof("Cloning project '%s' with id '%s'", project.Name, message.Message)
 
 	if err := verifier.VerifyStatus(CommandCloneRepository, project.Status); err != nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Invalid project status %s => %s", project.Status, err.Error()))
 	}
 
 	messager := pm.eventServe.WithMessage(CommandCloneRepository.Message(), userId, project.ID, func(data interface{}) {
@@ -42,12 +43,12 @@ func (pm *ProjectManager) CloneRepositoryProject(ctx echo.Context) error {
 		}
 		logger.Infof("[%s] finished with branch %s", project.Name, result.Branch)
 		// update the project branch and status
-		if err = pm.updateProjectWith(project, StatusCloned, result.Branch); err != nil {
+		if err = pm.updateProjectWith(project, StatusCloned, result.Branch, CommandCloneRepository.Event()); err != nil {
 			logger.Errorf("Failed to update project status to '%s': %s", StatusCloned, err.Error())
 		}
 	})
 	if messager == nil {
-		return ctx.JSON(http.StatusBadRequest, toErrorResponse("Failed to create messager"))
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponse("Failed to create messager"))
 	}
 
 	// clone the repository
