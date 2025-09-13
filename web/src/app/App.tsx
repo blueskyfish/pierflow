@@ -3,6 +3,7 @@ import {
   ProjectBuildPage,
   ProjectCheckoutPage,
   ProjectClonePage,
+  ProjectCreatePage,
   ProjectDeletePage,
   ProjectDetailPage,
   ProjectHomePage,
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Pull)} element={<ProjectPullPage />} />
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Delete)} element={<ProjectDeletePage />} />
         </Route>
+        <Route path={RoutePath.ProjectCreate} element={<ProjectCreatePage />} />
       </Route>
     </Routes>
   );

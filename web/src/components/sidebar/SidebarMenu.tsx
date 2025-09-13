@@ -1,4 +1,4 @@
-import { RouteBuilder, RoutePath } from '@blueskyfish/pierflow/utils';
+import { ProjectPath, RouteBuilder, RoutePath } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
 import { SidebarItem } from './SidebarItem.tsx';
 
@@ -42,6 +42,14 @@ export const SidebarMenu: React.FC<SidebarMenuProps> = ({ selected, menu }) => {
           disabled={false}
         />
       ))}
+      <SidebarItem
+        menuKey={ProjectPath.Create}
+        label={'Create new Project'}
+        link={RoutePath.ProjectCreate}
+        icon={'mdi mdi-new-box'}
+        selected={'create-project' === selected}
+        disabled={false}
+      />
     </ul>
   );
 };

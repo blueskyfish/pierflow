@@ -6,6 +6,7 @@ export * from './ProjectCard';
 export * from './ProjectCheckout';
 export * from './ProjectDetail';
 export * from './ProjectDock';
+export * from './ProjectEdit';
 export * from './ProjectMessage';
 export * from './ProjectPull';
 export * from './ProjectStart';
