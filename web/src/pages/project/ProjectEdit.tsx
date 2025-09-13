@@ -1,14 +1,14 @@
 import React, { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { InputControl, TextAreaControl } from '@blueskyfish/pierflow/components';
 
-export interface ProjectEditData {
+export type ProjectEditData = {
   name: string;
   description: string;
   path: string;
-  gitUrl: string;
+  giturl: string;
   user: string;
   token: string;
-}
+};
 
 interface ProjectEditProps {
   data: Partial<ProjectEditData>;
@@ -20,7 +20,7 @@ export const ProjectEdit: React.FC<ProjectEditProps> = ({ data, onSend }) => {
     name: '',
     description: '',
     path: '',
-    gitUrl: '',
+    giturl: '',
     user: '',
     token: '',
   });
@@ -41,7 +41,7 @@ export const ProjectEdit: React.FC<ProjectEditProps> = ({ data, onSend }) => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className={'form'}>
+      <form onSubmit={handleSubmit} className={'form'} autoComplete={'off'}>
         <div
           style={{
             display: 'grid',
@@ -93,9 +93,9 @@ export const ProjectEdit: React.FC<ProjectEditProps> = ({ data, onSend }) => {
           <div style={{ gridArea: 'gitUrl' }}>
             <InputControl
               type='text'
-              name='gitUrl'
+              name='giturl'
               label='Git Repository URL'
-              value={formData.gitUrl}
+              value={formData.giturl}
               placeholder={'HTTPs Git repository URL...'}
               required
               helpText={'HTTPS URL of the Git repository'}
