@@ -1,5 +1,6 @@
 export enum RouteName {
   Projects = 'projects',
+  Create = 'create',
 }
 
 export enum RouteParam {
@@ -10,6 +11,8 @@ export class RoutePath {
   static HomePath = '/';
   static ProjectListPath = `/${RouteName.Projects}`;
   static ProjectHomePath = `/${RouteName.Projects}/:${RouteParam.ProjectId}`;
+  static ProjectCreate = `/${RouteName.Projects}/${RouteName.Create}`;
+
   static ProjectCommandPath = (commandPath: ProjectPath) =>
     `/${RouteName.Projects}/:${RouteParam.ProjectId}/${commandPath}`;
 }

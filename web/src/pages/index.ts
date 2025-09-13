@@ -2,6 +2,7 @@ export * from './DashboardPage';
 export * from './ProjectBuildPage';
 export * from './ProjectCheckoutPage';
 export * from './ProjectClonePage';
+export * from './ProjectCreatePage';
 export * from './ProjectDeletePage';
 export * from './ProjectDetailPage';
 export * from './ProjectHomePage';
