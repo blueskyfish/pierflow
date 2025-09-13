@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { HeadLine, ScrollBar, ScrollingDirection } from '@blueskyfish/pierflow/components';
 import { ProjectEdit, type ProjectEditData } from './project';
-import { updatePageKey, useAppDispatch } from '@blueskyfish/pierflow/stores';
+import { setError, updatePageKey, updateProjectDetail, useAppDispatch } from '@blueskyfish/pierflow/stores';
+import { type ErrorDto, fetchCreateProject } from '@blueskyfish/pierflow/api';
+import { useNavigate } from 'react-router';
+import { RouteBuilder } from '@blueskyfish/pierflow/utils';
 
 export const ProjectCreatePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const project = {
     name: '',
@@ -17,9 +21,19 @@ export const ProjectCreatePage: React.FC = () => {
   };
 
   const sendProjectCreate = (data: ProjectEditData) => {
-    // Implement the project creation logic here
-    console.log('> Creating project =>', data);
-    setLoading(false);
+    console.log('Create Project', data);
+    setLoading(true);
+    fetchCreateProject(data)
+      .then((project) => {
+        dispatch(updateProjectDetail(project));
+        setTimeout(() => {
+          navigate(RouteBuilder.buildProjectHomePath(project.id));
+        }, 100);
+      })
+      .catch((error: ErrorDto) => {
+        dispatch(setError(error));
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {

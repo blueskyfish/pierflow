@@ -48,3 +48,12 @@ export interface ErrorDto {
   status: number;
   message: string;
 }
+
+export interface CreateProjectPayload {
+  name: string;
+  description: string;
+  path: string;
+  giturl: string;
+  user: string;
+  token: string;
+}
