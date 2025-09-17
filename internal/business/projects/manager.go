@@ -49,7 +49,7 @@ func NewProjectManager(basePath, dbPath string, dockerActions []events.Action) (
 	sqlDb.SetConnMaxLifetime(DbConnMaxLifetime) // No limit on connection lifetime
 
 	// Automatically migrate the DbProject model to create the table if it doesn't exist
-	err = db.AutoMigrate(&DbProject{})
+	err = db.AutoMigrate(&DbProject{}, &DbEvent{})
 	if err != nil {
 		logger.Errorf("Failed to auto-migrate models: %s", err.Error())
 		return nil, err
