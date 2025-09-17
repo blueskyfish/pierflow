@@ -43,3 +43,11 @@ type BranchListResponse struct {
 	Branches []*BranchInfo `json:"branches"`
 	Messages []string      `json:"messages"`
 }
+
+type ProjectHistoryResponse struct {
+	ID        string           `json:"id"`
+	Group     string           `json:"group"`
+	Event     string           `json:"event"`
+	Project   *ProjectResponse `json:"project"`
+	Timestamp int64            `json:"timestamp"`
+}

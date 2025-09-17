@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -18,5 +19,28 @@ func toProjectResponse(p *DbProject) *ProjectResponse {
 		Modified:    time.Unix(p.Modified, 0).Format(time.RFC3339),
 		Status:      p.Status.String(),
 		CommandMap:  verifier.CommandMap(p.Status),
+	}
+}
+
+func toProjectHistoryResponse(ev *DbEvent) *ProjectHistoryResponse {
+	var project DbProject
+	err := json.Unmarshal([]byte(ev.Value), &project)
+	if err != nil {
+		// If we can't unmarshal the project, return a minimal event response
+		return &ProjectHistoryResponse{
+			ID:        ev.ID,
+			Group:     ev.Group,
+			Event:     ev.Event,
+			Project:   &ProjectResponse{ID: ev.Value}, // Just return the raw value as ID
+			Timestamp: ev.Timestamp,
+		}
+	}
+
+	return &ProjectHistoryResponse{
+		ID:        ev.ID,
+		Group:     ev.Group,
+		Event:     ev.Event,
+		Project:   toProjectResponse(&project),
+		Timestamp: ev.Timestamp,
 	}
 }

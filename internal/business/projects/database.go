@@ -81,6 +81,37 @@ func (pm *ProjectManager) GetProjectDetail(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, toProjectResponse(project))
 }
 
+func (pm *ProjectManager) GetProjectHistory(ctx echo.Context) error {
+	projectId := ctx.Param("id")
+	if projectId == "" {
+		return ctx.JSON(http.StatusBadRequest, errors.ToErrorResponseF("Project ID is required"))
+	}
+
+	var events []DbEvent
+	err := pm.db.Limit(2).
+		Order("timestamp DESC").
+		Find(&events, "`group` = ? AND value_id = ?", "project", projectId).
+		Error
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, errors.ToErrorResponse("Failed to retrieve project history"))
+	}
+
+	if len(events) == 0 {
+		return ctx.JSON(http.StatusNotFound, errors.ToErrorResponse("Project history not found"))
+	}
+
+	var list []*ProjectHistoryResponse
+	for _, ev := range events {
+		list = append(list, toProjectHistoryResponse(&ev))
+	}
+
+	if len(list) == 0 {
+		list = []*ProjectHistoryResponse{}
+	}
+
+	return ctx.JSON(http.StatusOK, list)
+}
+
 func (pm *ProjectManager) findProjectById(projectId string) *DbProject {
 	var project DbProject
 	if err := pm.db.Find(&project, "id = ?", projectId).Error; err != nil {

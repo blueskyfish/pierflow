@@ -1,0 +1,21 @@
+meta {
+  name: GET Project History
+  type: http
+  seq: 16
+}
+
+get {
+  url: http://{{HOST}}:{{PORT}}/api/projects/{{PROJECT_ID}}/history
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    "message": "Cloning project"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

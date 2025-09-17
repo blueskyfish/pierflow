@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+
 	"github.com/blueskyfish/pierflow/internal/business"
 	"github.com/blueskyfish/pierflow/internal/business/projects"
 
@@ -23,6 +24,7 @@ func registerEndpoints(pm *projects.ProjectManager, sm *business.SystemManager, 
 	group.GET("/projects", pm.GetProjectList)
 	group.POST("/projects", pm.CreateProject)
 	group.GET("/projects/:id", pm.GetProjectDetail)
+	group.GET("/projects/:id/history", pm.GetProjectHistory)
 
 	// Manages Project Commands
 	group.PUT("/projects/:id/clone", pm.CloneRepositoryProject)

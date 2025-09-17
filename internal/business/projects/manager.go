@@ -12,6 +12,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/moby/moby/api/types/events"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 const DbMaxIdleConnections = 10  // Maximum number of idle connections in the pool
@@ -33,7 +34,9 @@ type ProjectManager struct {
 // The `basePath` is the root directory where all project repositories will be managed.
 // The `dockerActions` parameter specifies which Docker actions to listen for.
 func NewProjectManager(basePath, dbPath string, dockerActions []events.Action) (*ProjectManager, error) {
-	db, err := gorm.Open(sqlite.Open(path.Join(basePath, dbPath)), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(path.Join(basePath, dbPath)), &gorm.Config{
+		Logger: gormLogger.Default.LogMode(gormLogger.Info),
+	})
 
 	if err != nil {
 		return nil, err
