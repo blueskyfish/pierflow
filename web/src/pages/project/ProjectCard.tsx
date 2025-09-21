@@ -1,5 +1,5 @@
+import type { ProjectDto } from '@blueskyfish/pierflow/api';
 import { CardImage, HeadLine, Paragraph } from '@blueskyfish/pierflow/components';
-import type { ProjectDto } from '@blueskyfish/pierflow/stores';
 import { RouteBuilder } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
 import { Link } from 'react-router';

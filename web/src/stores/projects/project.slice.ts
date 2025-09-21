@@ -1,15 +1,24 @@
-import { createSlice, type MiddlewareAPI, type PayloadAction } from '@reduxjs/toolkit';
-import { type BranchDto, fetchProjectDetails, fetchProjectList, type ProjectDto } from '@blueskyfish/pierflow/api';
+import {
+  type BranchDto,
+  fetchProjectDetails,
+  fetchProjectHistory,
+  fetchProjectList,
+  type ProjectDto,
+  type ProjectHistoryResult,
+} from '@blueskyfish/pierflow/api';
 import {
   loadProjectDetails,
+  loadProjectHistory,
   loadProjectList,
   ProjectFeatureKey,
   type ProjectState,
 } from '@blueskyfish/pierflow/stores';
+import { createSlice, type MiddlewareAPI, type PayloadAction } from '@reduxjs/toolkit';
 import {
   reduceUpdateBranchList,
   reduceUpdateProjectBranch,
   reduceUpdateProjectDetail,
+  reduceUpdateProjectHistory,
   reduceUpdateProjectList,
 } from './project.reducing.ts';
 
@@ -18,6 +27,7 @@ export const projectSlice = createSlice({
   initialState: {
     map: {},
     selectedId: null,
+    historyMap: {},
   } as ProjectState,
   reducers: {
     updateSelectedId: (state: ProjectState, action: PayloadAction<string | null>) => {
@@ -44,12 +54,26 @@ export const projectSlice = createSlice({
       const { projectId, branch } = action.payload;
       return reduceUpdateProjectBranch(state, projectId, branch);
     },
+
+    updateProjectHistory: (
+      state: ProjectState,
+      action: PayloadAction<{ projectId: string; history: ProjectHistoryResult }>,
+    ) => {
+      const { projectId, history } = action.payload;
+      return reduceUpdateProjectHistory(state, projectId, history);
+    },
   },
 });
 
 // Exports the actions
-export const { updateSelectedId, updateProjectDetail, updateProjectList, updateBranchList, updateProjectBranch } =
-  projectSlice.actions;
+export const {
+  updateSelectedId,
+  updateProjectDetail,
+  updateProjectList,
+  updateBranchList,
+  updateProjectBranch,
+  updateProjectHistory,
+} = projectSlice.actions;
 
 // Exports the reducer
 export const projectReducer = projectSlice.reducer;
@@ -70,6 +94,12 @@ export const projectMiddleware =
       const projectId = action.payload;
       const project = await fetchProjectDetails(projectId);
       dispatch(updateProjectDetail(project));
+      return;
+    }
+    if (loadProjectHistory.match(action)) {
+      const projectId = action.payload;
+      const projectHistory = await fetchProjectHistory(projectId);
+      dispatch(updateProjectHistory({ projectId, history: projectHistory }));
       return;
     }
     return next(action);

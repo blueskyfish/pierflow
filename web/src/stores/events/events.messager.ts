@@ -1,5 +1,5 @@
+import { ProjectCommand } from '@blueskyfish/pierflow/api';
 import type { ServerEvent } from './events.models.ts';
-import { ProjectCommand } from '@blueskyfish/pierflow/stores';
 
 export type CleanupFunction = () => void;
 

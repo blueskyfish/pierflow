@@ -1,14 +1,10 @@
-import * as React from 'react';
-import { useCallback, useState } from 'react';
-import { type ErrorDto, fetchBuildProject, type ProjectDto } from '@blueskyfish/pierflow/api';
+import { type ErrorDto, fetchBuildProject, ProjectCommand, type ProjectDto } from '@blueskyfish/pierflow/api';
 import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
-import { ProjectDetail } from './ProjectDetail.tsx';
 import {
   addEventMessager,
   addMessage,
   EventStatus,
   loadProjectDetails,
-  ProjectCommand,
   type ServerEvent,
   setError,
   toEventType,
@@ -16,6 +12,9 @@ import {
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
 import { Duration } from 'luxon';
+import * as React from 'react';
+import { useCallback, useState } from 'react';
+import { ProjectDetail } from './ProjectDetail.tsx';
 
 export interface ProjectBuildProps {
   project: ProjectDto;

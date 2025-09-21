@@ -1,8 +1,8 @@
 import type { ProjectDto } from '@blueskyfish/pierflow/api';
-import { DateFormatter, LabelValue, Panel } from '@blueskyfish/pierflow/components';
-import { ProjectStatus } from './ProjectStatus.tsx';
+import { CardPanel, DateFormatter, LabelValue } from '@blueskyfish/pierflow/components';
 import type { ProjectStatusKind } from '@blueskyfish/pierflow/icons';
 import * as React from 'react';
+import { ProjectStatus } from './ProjectStatus.tsx';
 
 export interface ProjectDetailProps {
   project: ProjectDto;
@@ -16,7 +16,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onChange 
     }
   };
   return (
-    <Panel>
+    <CardPanel>
       <div className={'flex flex-row align-items-stretch'}>
         <div className={'flex-grow-1 w-1/6'}>
           <ProjectStatus status={project.status as ProjectStatusKind} />
@@ -61,6 +61,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onChange 
           </LabelValue>
         </div>
       </div>
-    </Panel>
+    </CardPanel>
   );
 };

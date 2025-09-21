@@ -7,6 +7,7 @@ export * from './fetch-checkout-repository';
 export * from './fetch-create-project';
 export * from './fetch-get-taskfile-list';
 export * from './fetch-project-details';
+export * from './fetch-project-history';
 export * from './fetch-project-list';
 export * from './fetch-pull-repository';
 export * from './fetch-start-project';

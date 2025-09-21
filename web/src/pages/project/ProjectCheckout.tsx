@@ -1,9 +1,17 @@
 import {
+  type BranchDto,
+  type ErrorDto,
+  fetchBranchList,
+  fetchCheckoutRepository,
+  ProjectCommand,
+} from '@blueskyfish/pierflow/api';
+import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
+import {
   addEventMessager,
   addMessage,
   EventStatus,
   loadProjectDetails,
-  ProjectCommand,
+  type ProjectInfo,
   type ServerEvent,
   setError,
   toEventType,
@@ -12,20 +20,12 @@ import {
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
-import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  type BranchDto,
-  type ErrorDto,
-  fetchBranchList,
-  fetchCheckoutRepository,
-  type ProjectDto,
-} from '@blueskyfish/pierflow/api';
 import { GitPlace } from './GitPlace.tsx';
 
 export interface CheckoutProps {
-  project: ProjectDto;
+  project: ProjectInfo;
 }
 
 export const ProjectCheckout: React.FC<CheckoutProps> = ({ project }) => {

@@ -1,5 +1,5 @@
+import type { BranchDto, ProjectDto, ProjectHistoryResult } from '@blueskyfish/pierflow/api';
 import type { ProjectState } from './project.state';
-import type { BranchDto, ProjectDto } from '@blueskyfish/pierflow/api';
 
 export const reduceUpdateProjectList = (state: ProjectState, projectList: ProjectDto[]): ProjectState => {
   const map: Record<string, ProjectDto> = {};
@@ -18,7 +18,10 @@ export const reduceUpdateProjectDetail = (state: ProjectState, project: ProjectD
     ...state,
     map: {
       ...state.map,
-      [project.id]: project,
+      [project.id]: {
+        ...state.map[project.id],
+        ...project,
+      },
     },
   };
 };
@@ -60,6 +63,20 @@ export const reduceUpdateProjectBranch = (state: ProjectState, projectId: string
     map: {
       ...state.map,
       [projectId]: project,
+    },
+  };
+};
+
+export const reduceUpdateProjectHistory = (
+  state: ProjectState,
+  projectId: string,
+  history: ProjectHistoryResult,
+): ProjectState => {
+  return {
+    ...state,
+    historyMap: {
+      ...state.historyMap,
+      [projectId]: history,
     },
   };
 };

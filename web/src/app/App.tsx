@@ -5,9 +5,9 @@ import {
   ProjectClonePage,
   ProjectCreatePage,
   ProjectDeletePage,
-  ProjectDetailPage,
   ProjectHomePage,
   ProjectListPage,
+  ProjectProcessPage,
   ProjectPullPage,
   ProjectStartPage,
   ProjectStopPage,
@@ -24,7 +24,7 @@ export const App: React.FC = () => {
         <Route index element={<DashboardPage />} />
         <Route path={RoutePath.ProjectListPath} element={<ProjectListPage />} />
         <Route path={RoutePath.ProjectHomePath} element={<ProjectHomePage />}>
-          <Route index element={<ProjectDetailPage />} />
+          <Route index element={<ProjectProcessPage />} />
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Clone)} element={<ProjectClonePage />} />
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Checkout)} element={<ProjectCheckoutPage />} />
           <Route path={RoutePath.ProjectCommandPath(ProjectPath.Build)} element={<ProjectBuildPage />} />

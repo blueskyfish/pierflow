@@ -1,23 +1,23 @@
-import { type ErrorDto, fetchStopProject, type ProjectDto } from '@blueskyfish/pierflow/api';
-import * as React from 'react';
-import { useCallback, useState } from 'react';
+import { type ErrorDto, fetchStopProject, ProjectCommand } from '@blueskyfish/pierflow/api';
 import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
-import { ProjectDetail } from './ProjectDetail.tsx';
 import {
   addEventMessager,
   addMessage,
   EventStatus,
   loadProjectDetails,
-  ProjectCommand,
+  type ProjectInfo,
   type ServerEvent,
   setError,
   toEventType,
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
+import * as React from 'react';
+import { useCallback, useState } from 'react';
+import { ProjectDetail } from './ProjectDetail.tsx';
 
 export interface ProjectStopProps {
-  project: ProjectDto;
+  project: ProjectInfo;
 }
 
 export const ProjectStop: React.FC<ProjectStopProps> = ({ project }) => {

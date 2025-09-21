@@ -1,13 +1,13 @@
-export enum ProjectCommand {
-  CreateProject = 'create-project',
-  CheckoutRepository = 'checkout-repository',
-  BuildProject = 'build-project',
-  CloneRepository = 'clone-repository',
-  PullRepository = 'pull-repository',
-  StartProject = 'start-project',
-  StopProject = 'stop-project',
-  DeleteProject = 'delete-project',
+import type { BranchDto, ProjectDto } from '@blueskyfish/pierflow/api';
 
-  BranchList = 'branch-list',
-  TaskList = 'task-list',
+export interface ProjectInfo extends ProjectDto {
+  /**
+   * Optional the list of branches for the project repository
+   */
+  branchList?: BranchDto[];
+
+  /**
+   * Optional the list of tasks for the project from taskfiles
+   */
+  taskfileList?: string[];
 }

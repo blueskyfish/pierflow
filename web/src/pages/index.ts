@@ -10,4 +10,5 @@ export * from './ProjectListPage';
 export * from './ProjectPullPage';
 export * from './ProjectStartPage';
 export * from './ProjectStopPage';
+export * from './ProjectProcessPage.tsx';
 export * from './RootPage';

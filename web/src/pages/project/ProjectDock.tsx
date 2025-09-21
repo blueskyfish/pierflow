@@ -1,4 +1,4 @@
-import { ProjectCommand } from '@blueskyfish/pierflow/stores';
+import { ProjectCommand } from '@blueskyfish/pierflow/api';
 import { ProjectPath, RouteBuilder } from '@blueskyfish/pierflow/utils';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router';

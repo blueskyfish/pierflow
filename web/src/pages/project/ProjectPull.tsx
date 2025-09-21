@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { useCallback } from 'react';
-import { type ErrorDto, fetchPullRepository, type ProjectDto } from '@blueskyfish/pierflow/api';
+import { type ErrorDto, fetchPullRepository, ProjectCommand } from '@blueskyfish/pierflow/api';
 import { HeadLine, ScrollBar, ScrollingDirection, useToast } from '@blueskyfish/pierflow/components';
-import { ProjectDetail } from './ProjectDetail.tsx';
 import {
   addEventMessager,
   addMessage,
   EventStatus,
   loadProjectDetails,
-  ProjectCommand,
+  type ProjectInfo,
   setError,
   toEventType,
   updateProjectBranch,
   useAppDispatch,
   useEventSource,
 } from '@blueskyfish/pierflow/stores';
+import * as React from 'react';
+import { useCallback } from 'react';
+import { ProjectDetail } from './ProjectDetail.tsx';
 
 export interface ProjectPullProps {
-  project: ProjectDto;
+  project: ProjectInfo;
 }
 
 export const ProjectPull: React.FC<ProjectPullProps> = ({ project }) => {

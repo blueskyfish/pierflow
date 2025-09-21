@@ -1,3 +1,17 @@
+export enum ProjectCommand {
+  CreateProject = 'create-project',
+  CloneRepository = 'clone-repository',
+  CheckoutRepository = 'checkout-repository',
+  PullRepository = 'pull-repository',
+  BuildProject = 'build-project',
+  StartProject = 'start-project',
+  StopProject = 'stop-project',
+  DeleteProject = 'delete-project',
+
+  BranchList = 'branch-list',
+  TaskList = 'task-list',
+}
+
 export interface BranchDto {
   branch: string;
   place: string;
@@ -17,16 +31,19 @@ export interface ProjectDto {
   modified: string;
   status: string;
   commandMap: Record<string, boolean>;
+}
 
-  /**
-   * Optional the list of branches for the project repository
-   */
-  branchList?: BranchDto[];
+export interface ProjectHistoryDto {
+  id: string;
+  group: string;
+  event: string;
+  project: ProjectDto;
+  timestamp: number;
+}
 
-  /**
-   * Optional the list of tasks for the project from taskfiles
-   */
-  taskfileList?: string[];
+export interface ProjectHistoryResult {
+  current: ProjectHistoryDto;
+  previous: ProjectHistoryDto[];
 }
 
 export interface CheckoutPayload {
