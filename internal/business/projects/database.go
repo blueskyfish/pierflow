@@ -88,8 +88,7 @@ func (pm *ProjectManager) GetProjectHistory(ctx echo.Context) error {
 	}
 
 	var events []DbEvent
-	err := pm.db.Limit(2).
-		Order("timestamp DESC").
+	err := pm.db.Order("timestamp DESC").
 		Find(&events, "`group` = ? AND value_id = ?", "project", projectId).
 		Error
 	if err != nil {
