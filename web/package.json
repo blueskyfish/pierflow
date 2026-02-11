@@ -12,7 +12,7 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@reduxjs/toolkit": "^2.9.0",
-    "axios": "^1.12.2",
+    "axios": "^1.13.5",
     "luxon": "^3.7.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
